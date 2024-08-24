@@ -23,8 +23,6 @@ public class ApiConfig {
 
     public static ApiConfig create() {
         Config load = ConfigFactory.load("test.conf");
-        ApiConfig apiConfig = ApiConfig.of(load.getString("api.username"), load.getString("api.password"), load.getLong("api.unauthenticatedUserId"), load.getString("api.unauthenticatedUsername"));
-        log.info(apiConfig.toString());
-        return apiConfig;
+        return ApiConfig.of(load.getString("api.username"), load.getString("api.password"), load.getLong("api.unauthenticatedUserId"), load.getString("api.unauthenticatedUsername"));
     }
 }

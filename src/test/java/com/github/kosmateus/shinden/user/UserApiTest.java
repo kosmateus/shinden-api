@@ -82,7 +82,7 @@ class UserApiTest extends BaseTest {
         @Test
         @DisplayName("Should successfully get user overview")
         void shouldSuccessfullyGetOverview() {
-            UserOverview overview = userApi.getOverview(41L);
+            UserOverview overview = userApi.getOverview(API_CONFIG.getUnauthenticatedUserId());
             assertThat(overview).isNotNull();
             assertThat(overview.getId()).isNotNull();
             assertThat(overview.getUsername()).isEqualToIgnoringCase(API_CONFIG.getUnauthenticatedUsername());
