@@ -7,8 +7,9 @@ import com.github.kosmateus.shinden.login.LoginApi;
 import com.github.kosmateus.shinden.user.UserApi;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
-import java.util.Locale;
 import lombok.RequiredArgsConstructor;
+
+import java.util.Locale;
 
 /**
  * The {@code ShindenApi} class serves as the main entry point for interacting with the Shinden API.
