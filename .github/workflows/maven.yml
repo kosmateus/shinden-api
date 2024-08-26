@@ -26,3 +26,5 @@ jobs:
       env:
         USERNAME: ${{ secrets.USERNAME }}
         PASSWORD: ${{ secrets.PASSWORD }}
+        UNAUTHENTICATED_USER_ID: ${{ secrets.UNAUTHENTICATED_USER_ID }}
+        UNAUTHENTICATED_USERNAME: ${{ secrets.UNAUTHENTICATED_USERNAME }}
