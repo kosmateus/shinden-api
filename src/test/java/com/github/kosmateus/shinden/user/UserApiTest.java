@@ -489,7 +489,6 @@ class UserApiTest extends BaseTest {
             assertThat(result).isNotNull();
             assertThat(result.getResult()).isEqualTo(SUCCESS);
         }
-
     }
 
     @NoArgsConstructor(access = AccessLevel.PRIVATE)

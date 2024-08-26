@@ -2,12 +2,12 @@ package com.github.kosmateus.shinden.login.request;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.google.common.collect.ImmutableMap;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 
+import javax.validation.constraints.NotBlank;
 import java.util.Map;
 
 /**

@@ -4,8 +4,9 @@ import com.github.kosmateus.shinden.auth.PageStructureChangedException;
 import com.github.kosmateus.shinden.exception.JsoupParserException;
 import com.github.kosmateus.shinden.login.request.LoginRequest;
 import com.github.kosmateus.shinden.login.response.LoginDetails;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 /**
  * Interface for handling user login operations.

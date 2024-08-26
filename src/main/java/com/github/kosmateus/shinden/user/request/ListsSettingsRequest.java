@@ -2,10 +2,11 @@ package com.github.kosmateus.shinden.user.request;
 
 import com.github.kosmateus.shinden.user.common.ListsSettings;
 import com.github.kosmateus.shinden.user.common.UserId;
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+
+import javax.validation.constraints.NotNull;
 
 /**
  * Represents a request to update a user's list settings.

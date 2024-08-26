@@ -5,7 +5,6 @@ import com.github.kosmateus.shinden.http.request.QueryParam;
 import com.github.kosmateus.shinden.i18n.Translatable;
 import com.github.kosmateus.shinden.user.common.UserId;
 import com.github.kosmateus.shinden.utils.QueryParamsBuilder;
-import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,6 +12,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
+import javax.validation.constraints.NotNull;
 import java.util.Map;
 
 /**

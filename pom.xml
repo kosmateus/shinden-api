@@ -78,9 +78,14 @@
             <version>2.15.2</version>
         </dependency>
         <dependency>
-            <groupId>org.hibernate.validator</groupId>
+            <artifactId>validation-api</artifactId>
+            <groupId>javax.validation</groupId>
+            <version>2.0.1.Final</version> <!-- Zależność do javax.validation -->
+        </dependency>
+        <dependency>
             <artifactId>hibernate-validator</artifactId>
-            <version>8.0.0.Final</version>
+            <groupId>org.hibernate.validator</groupId>
+            <version>6.2.0.Final</version> <!-- Wersja z obsługą javax.validation -->
         </dependency>
 
 

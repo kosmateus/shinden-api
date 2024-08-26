@@ -19,9 +19,9 @@ import com.github.kosmateus.shinden.user.response.Review;
 import com.github.kosmateus.shinden.user.response.UserInformation;
 import com.github.kosmateus.shinden.user.response.UserOverview;
 import com.github.kosmateus.shinden.user.response.UserSettings;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
