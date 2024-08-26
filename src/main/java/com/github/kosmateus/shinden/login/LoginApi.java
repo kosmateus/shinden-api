@@ -4,6 +4,8 @@ import com.github.kosmateus.shinden.auth.PageStructureChangedException;
 import com.github.kosmateus.shinden.exception.JsoupParserException;
 import com.github.kosmateus.shinden.login.request.LoginRequest;
 import com.github.kosmateus.shinden.login.response.LoginDetails;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * Interface for handling user login operations.
@@ -32,5 +34,5 @@ public interface LoginApi {
      * @throws PageStructureChangedException if the structure of the login page has changed unexpectedly.
      * @throws JsoupParserException          if an error occurs while parsing the web page.
      */
-    LoginDetails login(LoginRequest loginRequest);
+    LoginDetails login(@Valid @NotNull LoginRequest loginRequest);
 }

@@ -1,10 +1,12 @@
 package com.github.kosmateus.shinden.user;
 
-import com.github.kosmateus.shinden.exception.ForbiddenException;
+import com.github.kosmateus.shinden.common.mapper.CommonMapper;
+import com.github.kosmateus.shinden.common.response.UpdateResult;
 import com.github.kosmateus.shinden.exception.NotFoundException;
 import com.github.kosmateus.shinden.http.response.HttpStatus;
 import com.github.kosmateus.shinden.http.response.ResponseHandler;
 import com.github.kosmateus.shinden.user.common.UserId;
+import com.github.kosmateus.shinden.user.mapper.UserAccountMapper;
 import com.github.kosmateus.shinden.user.mapper.UserAchievementsMapper;
 import com.github.kosmateus.shinden.user.mapper.UserFavouriteTagsMapper;
 import com.github.kosmateus.shinden.user.mapper.UserInformationMapper;
@@ -13,9 +15,12 @@ import com.github.kosmateus.shinden.user.mapper.UserRecommendationMapper;
 import com.github.kosmateus.shinden.user.mapper.UserReviewsMapper;
 import com.github.kosmateus.shinden.user.mapper.UserSettingsMapper;
 import com.github.kosmateus.shinden.user.request.AddToListSettingsRequest;
+import com.github.kosmateus.shinden.user.request.AvatarFileUpdateRequest;
+import com.github.kosmateus.shinden.user.request.AvatarUrlUpdateRequest;
 import com.github.kosmateus.shinden.user.request.BaseSettingsRequest;
 import com.github.kosmateus.shinden.user.request.FavouriteTagsRequest;
 import com.github.kosmateus.shinden.user.request.ListsSettingsRequest;
+import com.github.kosmateus.shinden.user.request.UpdatePasswordRequest;
 import com.github.kosmateus.shinden.user.request.UserInformationRequest;
 import com.github.kosmateus.shinden.user.response.Achievements;
 import com.github.kosmateus.shinden.user.response.FavouriteTag;
@@ -33,6 +38,8 @@ import org.jsoup.nodes.Document;
 import java.util.List;
 import java.util.Map;
 
+import static com.github.kosmateus.shinden.utils.response.ResponseHandlerValidator.validateResponse;
+
 /**
  * Implementation of the {@link UserApi} interface for managing user-related operations.
  * <p>
@@ -48,7 +55,9 @@ import java.util.Map;
 @RequiredArgsConstructor(onConstructor_ = @__(@Inject))
 class UserApiImpl implements UserApi {
 
-    private final UserClient client;
+    private final UserJsoupClient jsoupClient;
+    private final UserHttpClient httpClient;
+    private final CommonMapper commonMapper;
     private final UserOverviewMapper overviewMapper;
     private final UserAchievementsMapper achievementsMapper;
     private final UserFavouriteTagsMapper favouriteTagsMapper;
@@ -56,121 +65,123 @@ class UserApiImpl implements UserApi {
     private final UserRecommendationMapper recommendationsMapper;
     private final UserInformationMapper informationMapper;
     private final UserSettingsMapper settingsMapper;
+    private final UserAccountMapper accountMapper;
 
     @Override
     public UserOverview getOverview(Long userId) {
-        ResponseHandler<Document> userPage = client.getUserPage(userId);
-
-        if (userPage.hasStatus(HttpStatus.NOT_FOUND)) {
-            throw new NotFoundException("User page not found");
-        }
-
+        ResponseHandler<Document> userPage = jsoupClient.getUserPage(userId);
+        validateResponse(userPage);
         return overviewMapper.map(userPage.getEntity());
     }
 
     @Override
     public Achievements getAchievements(Long userId) {
-        ResponseHandler<Document> achievementsPage = client.getAchievementsPage(userId);
-
-        if (achievementsPage.hasStatus(HttpStatus.NOT_FOUND)) {
-            throw new NotFoundException("Achievements page not found");
-        }
-
+        ResponseHandler<Document> achievementsPage = jsoupClient.getAchievementsPage(userId);
+        validateResponse(achievementsPage);
         return achievementsMapper.map(achievementsPage.getEntity());
     }
 
     @Override
     public List<FavouriteTag> getFavouriteTags(FavouriteTagsRequest request) {
-
-        ResponseHandler<Document> favouriteTagsPage = client.getFavouriteTagsPage(request);
-
-        if (favouriteTagsPage.hasStatus(HttpStatus.NOT_FOUND)) {
-            throw new NotFoundException("Favourite tags page not found");
-        }
-
+        ResponseHandler<Document> favouriteTagsPage = jsoupClient.getFavouriteTagsPage(request);
+        validateResponse(favouriteTagsPage);
         return favouriteTagsMapper.map(favouriteTagsPage.getEntity());
     }
 
     @Override
     public List<Review> getReviews(Long userId) {
-        ResponseHandler<Document> reviewsPage = client.getReviewsPage(userId);
-
-        if (reviewsPage.hasStatus(HttpStatus.NOT_FOUND)) {
-            throw new NotFoundException("Reviews page not found");
-        }
-
+        ResponseHandler<Document> reviewsPage = jsoupClient.getReviewsPage(userId);
+        validateResponse(reviewsPage);
         return reviewsMapper.map(reviewsPage.getEntity());
     }
 
     @Override
     public List<Recommendation> getRecommendations(Long userId) {
-        ResponseHandler<Document> recommendationsPage = client.getRecommendationsPage(userId);
-
-        if (recommendationsPage.hasStatus(HttpStatus.NOT_FOUND)) {
-            throw new NotFoundException("Recommendations page not found");
-        }
-
+        ResponseHandler<Document> recommendationsPage = jsoupClient.getRecommendationsPage(userId);
+        validateResponse(recommendationsPage);
         return recommendationsMapper.map(recommendationsPage.getEntity());
     }
 
     @Override
     public UserInformation getInformation(Long userId) {
-        ResponseHandler<Document> informationPage = client.getInformationEditPage(userId);
-
-        if (informationPage.hasStatus(HttpStatus.NOT_FOUND)) {
-            throw new NotFoundException("Information page not found");
-        }
-        if (informationPage.hasStatus(HttpStatus.FORBIDDEN)) {
-            throw new ForbiddenException("Information page is forbidden");
-        }
-
+        ResponseHandler<Document> informationPage = jsoupClient.getInformationEditPage(userId);
+        validateResponse(informationPage);
         return informationMapper.map(informationPage.getEntity());
     }
 
     @Override
-    public void updateInformation(UserInformationRequest request) {
-        ResponseHandler<Document> informationEditPage = client.getInformationEditPage(request.getUserId());
-        if (informationEditPage.hasStatus(HttpStatus.NOT_FOUND)) {
-            throw new NotFoundException("Information page not found");
-        }
+    public UpdateResult updateInformation(UserInformationRequest request) {
+        ResponseHandler<Document> informationEditPage = jsoupClient.getInformationEditPage(request.getUserId());
+        validateResponse(informationEditPage);
         Map<String, String> updateUserInformationFormData = informationMapper.map(informationEditPage.getEntity(), request);
-        client.updateInformation(request.getUserId(), updateUserInformationFormData);
+        return commonMapper.map(jsoupClient.updateInformation(request.getUserId(), updateUserInformationFormData));
     }
 
     @Override
     public UserSettings getSettings(Long userId) {
-        ResponseHandler<Document> settingsPage = client.getSettingsPage(userId);
-
-        if (settingsPage.hasStatus(HttpStatus.NOT_FOUND)) {
-            throw new NotFoundException("Settings page not found");
-        }
-
+        ResponseHandler<Document> settingsPage = jsoupClient.getSettingsPage(userId);
+        validateResponse(settingsPage);
         return settingsMapper.map(settingsPage.getEntity());
     }
 
     @Override
-    public void updateBaseSettings(BaseSettingsRequest request) {
+    public UpdateResult updateBaseSettings(BaseSettingsRequest request) {
         ResponseHandler<Document> settingsPage = getSettingsPage(request);
+        validateResponse(settingsPage);
         List<KeyVal> formData = settingsMapper.map(settingsPage.getEntity(), request);
-        client.updatePageSettings(request.getUserId(), formData);
+        return commonMapper.map(jsoupClient.updatePageSettings(request.getUserId(), formData));
     }
 
     @Override
-    public void updateListsSettings(ListsSettingsRequest request) {
+    public UpdateResult updateListsSettings(ListsSettingsRequest request) {
         ResponseHandler<Document> settingsPage = getSettingsPage(request);
+        validateResponse(settingsPage);
         List<KeyVal> formData = settingsMapper.map(settingsPage.getEntity(), request);
-        client.updateSettings(request.getUserId(), formData);
+        return commonMapper.map(jsoupClient.updateSettings(request.getUserId(), formData));
     }
 
     @Override
-    public void updateAddToListSettings(AddToListSettingsRequest request) {
+    public UpdateResult updateAddToListSettings(AddToListSettingsRequest request) {
         ResponseHandler<Document> settingsPage = getSettingsPage(request);
+        validateResponse(settingsPage);
         List<KeyVal> formData = settingsMapper.map(settingsPage.getEntity(), request);
-        client.updateSettings(request.getUserId(), formData);
+        return commonMapper.map(jsoupClient.updateSettings(request.getUserId(), formData));
+    }
+
+    @Override
+    public UpdateResult updateAvatar(AvatarFileUpdateRequest request) {
+        ResponseHandler<Document> editAvatarPage = jsoupClient.getEditAvatarPage(request.getUserId());
+        validateResponse(editAvatarPage);
+        Map<String, String> formData = accountMapper.mapToUpdateAvatar(editAvatarPage.getEntity());
+        return commonMapper.map(httpClient.updateUserAvatar(request.getUserId(), formData, request.getAvatar()));
+
+    }
+
+    @Override
+    public UpdateResult updateAvatar(AvatarUrlUpdateRequest request) {
+        ResponseHandler<Document> editAvatarPage = jsoupClient.getEditAvatarPage(request.getUserId());
+        validateResponse(editAvatarPage);
+        Map<String, String> formData = accountMapper.mapToUpdateAvatar(editAvatarPage.getEntity(), request);
+        return commonMapper.map(httpClient.updateUserAvatar(request.getUserId(), formData));
+    }
+
+    @Override
+    public UpdateResult deleteAvatar(Long userId) {
+        ResponseHandler<Document> editAvatarPage = jsoupClient.getEditAvatarPage(userId);
+        validateResponse(editAvatarPage);
+        Map<String, String> formData = accountMapper.mapToDeleteAvatar(editAvatarPage.getEntity());
+        return commonMapper.map(httpClient.updateUserAvatar(userId, formData));
+    }
+
+    @Override
+    public UpdateResult updatePassword(UpdatePasswordRequest request) {
+        ResponseHandler<Document> settingsPage = jsoupClient.getEditPasswordPage(request.getUserId());
+        Map<String, String> formData = accountMapper.mapToUpdatePassword(settingsPage.getEntity(), request);
+        return commonMapper.map(httpClient.updatePassword(request.getUserId(), formData));
     }
 
     private ResponseHandler<Document> getSettingsPage(UserId request) {
-        ResponseHandler<Document> settingsPage = client.getSettingsPage(request.getUserId());
+        ResponseHandler<Document> settingsPage = jsoupClient.getSettingsPage(request.getUserId());
         if (settingsPage.hasStatus(HttpStatus.NOT_FOUND)) {
             throw new NotFoundException("Settings page not found");
         }

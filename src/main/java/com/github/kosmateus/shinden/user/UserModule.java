@@ -2,12 +2,14 @@ package com.github.kosmateus.shinden.user;
 
 import com.github.kosmateus.shinden.auth.SessionManager;
 import com.github.kosmateus.shinden.http.jsoup.JsoupModule;
+import com.github.kosmateus.shinden.user.mapper.UserAccountMapper;
 import com.github.kosmateus.shinden.user.mapper.UserAchievementsMapper;
 import com.github.kosmateus.shinden.user.mapper.UserFavouriteTagsMapper;
 import com.github.kosmateus.shinden.user.mapper.UserInformationMapper;
 import com.github.kosmateus.shinden.user.mapper.UserOverviewMapper;
 import com.github.kosmateus.shinden.user.mapper.UserRecommendationMapper;
 import com.github.kosmateus.shinden.user.mapper.UserReviewsMapper;
+import com.github.kosmateus.shinden.user.mapper.UserSettingsMapper;
 import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +33,7 @@ public class UserModule extends AbstractModule {
      * Configures the module by setting up the required bindings.
      * <p>
      * This method installs the {@link JsoupModule}, binds the {@link SessionManager} instance,
-     * and ensures that {@link UserClient}, user mappers, and {@link UserApiImpl} are treated as singletons
+     * and ensures that {@link UserJsoupClient}, user mappers, and {@link UserApiImpl} are treated as singletons
      * within the dependency injection context.
      * </p>
      */
@@ -40,12 +42,15 @@ public class UserModule extends AbstractModule {
         install(new JsoupModule(sessionManager));
         bind(SessionManager.class).toInstance(sessionManager);
         bind(UserApi.class).to(UserApiImpl.class).in(Singleton.class);
-        bind(UserClient.class).in(Singleton.class);
+        bind(UserJsoupClient.class).in(Singleton.class);
+        bind(UserHttpClient.class).in(Singleton.class);
+        bind(UserAccountMapper.class).in(Singleton.class);
         bind(UserAchievementsMapper.class).in(Singleton.class);
         bind(UserFavouriteTagsMapper.class).in(Singleton.class);
         bind(UserInformationMapper.class).in(Singleton.class);
         bind(UserOverviewMapper.class).in(Singleton.class);
         bind(UserRecommendationMapper.class).in(Singleton.class);
         bind(UserReviewsMapper.class).in(Singleton.class);
+        bind(UserSettingsMapper.class).in(Singleton.class);
     }
 }

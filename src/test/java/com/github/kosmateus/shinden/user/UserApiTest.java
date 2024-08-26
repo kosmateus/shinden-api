@@ -1,6 +1,8 @@
 package com.github.kosmateus.shinden.user;
 
 import com.github.kosmateus.shinden.BaseTest;
+import com.github.kosmateus.shinden.common.response.UpdateResult;
+import com.github.kosmateus.shinden.http.request.LocalFileResource;
 import com.github.kosmateus.shinden.user.common.AnimeListSettings;
 import com.github.kosmateus.shinden.user.common.MangaListSettings;
 import com.github.kosmateus.shinden.user.common.PageSettings;
@@ -17,12 +19,15 @@ import com.github.kosmateus.shinden.user.common.enums.StatusAutoChange;
 import com.github.kosmateus.shinden.user.common.enums.SubtitlesLanguage;
 import com.github.kosmateus.shinden.user.common.enums.UserGender;
 import com.github.kosmateus.shinden.user.request.AddToListSettingsRequest;
+import com.github.kosmateus.shinden.user.request.AvatarFileUpdateRequest;
+import com.github.kosmateus.shinden.user.request.AvatarUrlUpdateRequest;
 import com.github.kosmateus.shinden.user.request.BaseSettingsRequest;
 import com.github.kosmateus.shinden.user.request.FavouriteTagsRequest;
 import com.github.kosmateus.shinden.user.request.FavouriteTagsRequest.ListType;
 import com.github.kosmateus.shinden.user.request.FavouriteTagsRequest.RateType;
 import com.github.kosmateus.shinden.user.request.FavouriteTagsRequest.TagType;
 import com.github.kosmateus.shinden.user.request.ListsSettingsRequest;
+import com.github.kosmateus.shinden.user.request.UpdatePasswordRequest;
 import com.github.kosmateus.shinden.user.request.UserInformationRequest;
 import com.github.kosmateus.shinden.user.response.Achievement;
 import com.github.kosmateus.shinden.user.response.Achievements;
@@ -36,20 +41,25 @@ import com.github.kosmateus.shinden.user.response.Review;
 import com.github.kosmateus.shinden.user.response.UserInformation;
 import com.github.kosmateus.shinden.user.response.UserOverview;
 import com.github.kosmateus.shinden.user.response.UserSettings;
+import com.github.kosmateus.shinden.utils.ResourceLoader;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -57,6 +67,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static com.github.kosmateus.shinden.common.response.Result.SUCCESS;
 import static com.github.kosmateus.shinden.i18n.TranslationUtil.getTranslation;
 import static com.github.kosmateus.shinden.user.UserApiTest.UserAsserts.IMAGE_EXTENSIONS;
 import static com.github.kosmateus.shinden.user.UserApiTest.UserAsserts.LANGUAGE;
@@ -246,13 +257,16 @@ class UserApiTest extends BaseTest {
         void shouldSuccessfullyUpdateUserInformation() {
             login();
 
-            userApi.updateInformation(UserInformationRequest.builder()
+            UpdateResult updateResult = userApi.updateInformation(UserInformationRequest.builder()
                     .userId(getLoggedInUserId())
                     .signature("Test signature")
                     .aboutMe("Test about me")
                     .gender(UserGender.MALE)
                     .birthDate(LocalDate.of(1990, 1, 1))
                     .build());
+
+            assertThat(updateResult).isNotNull();
+            assertThat(updateResult.getResult()).isEqualTo(SUCCESS);
 
             UserInformation information = userApi.getInformation(getLoggedInUserId());
             assertThat(information).isNotNull();
@@ -319,7 +333,7 @@ class UserApiTest extends BaseTest {
         @DisplayName("Should successfully update base settings")
         void shouldSuccessfullyUpdateBaseSettings() {
             login();
-            userApi.updateBaseSettings(BaseSettingsRequest.builder()
+            UpdateResult result = userApi.updateBaseSettings(BaseSettingsRequest.builder()
                     .userId(getLoggedInUserId())
                     .pageSettings(PageSettings.builder()
                             .pageTheme(PageTheme.SIMPLE_BLUE)
@@ -330,6 +344,9 @@ class UserApiTest extends BaseTest {
                             .visualNovelChapterReadTime(10)
                             .build())
                     .build());
+
+            assertThat(result).isNotNull();
+            assertThat(result.getResult()).isEqualTo(SUCCESS);
 
             UserSettings settings = userApi.getSettings(getLoggedInUserId());
             assertThat(settings).isNotNull();
@@ -345,7 +362,7 @@ class UserApiTest extends BaseTest {
         @DisplayName("Should successfully update list settings")
         void shouldSuccessfullyUpdateListSettings() {
             login();
-            userApi.updateListsSettings(ListsSettingsRequest.builder()
+            UpdateResult updateResult = userApi.updateListsSettings(ListsSettingsRequest.builder()
                     .userId(getLoggedInUserId())
                     .animeListSettings(AnimeListSettings.builder()
                             .subtitlesLanguages(Arrays.asList(SubtitlesLanguage.values()))
@@ -359,6 +376,9 @@ class UserApiTest extends BaseTest {
                             .statusAutoChange(StatusAutoChange.YES)
                             .build())
                     .build());
+
+            assertThat(updateResult).isNotNull();
+            assertThat(updateResult.getResult()).isEqualTo(SUCCESS);
 
             UserSettings settings = userApi.getSettings(getLoggedInUserId());
             assertThat(settings).isNotNull();
@@ -377,11 +397,14 @@ class UserApiTest extends BaseTest {
         @DisplayName("Should successfully update add to list settings")
         void shouldSuccessfullyUpdateAddToListSettings() {
             login();
-            userApi.updateAddToListSettings(AddToListSettingsRequest.builder()
+            UpdateResult updateResult = userApi.updateAddToListSettings(AddToListSettingsRequest.builder()
                     .userId(getLoggedInUserId())
                     .sliderPosition(SliderPosition.SIX_ITEMS)
                     .showAddToList(ShowOption.YES)
                     .build());
+
+            assertThat(updateResult).isNotNull();
+            assertThat(updateResult.getResult()).isEqualTo(SUCCESS);
 
             UserSettings settings = userApi.getSettings(getLoggedInUserId());
             assertThat(settings).isNotNull();
@@ -415,6 +438,58 @@ class UserApiTest extends BaseTest {
             assertThat(settings.getAddToListSettings().getSliderPosition()).isEqualTo(SliderPosition.NO_LIMIT);
             assertThat(settings.getAddToListSettings().getShowAddToList()).isEqualTo(ShowOption.NO);
         }
+    }
+
+    @Nested
+    @DisplayName("User account tests")
+    @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+    class UserAccountTest {
+
+        @Test
+        @Order(1)
+        @DisplayName("Should successfully update avatar with file")
+        void shouldSuccessfullyUpdateAvatarWithFile() throws IOException {
+            login();
+            UpdateResult result = userApi.updateAvatar(new AvatarFileUpdateRequest(getLoggedInUserId(), LocalFileResource.of(ResourceLoader.loadFile("user/avatar.png"))));
+
+            assertThat(result).isNotNull();
+            assertThat(result.getResult()).isEqualTo(SUCCESS);
+        }
+
+        @Test
+        @Order(2)
+        @DisplayName("Should successfully update avatar with URL")
+        void shouldSuccessfullyUpdateAvatarWithUrl() {
+            login();
+            UpdateResult result = userApi.updateAvatar(new AvatarUrlUpdateRequest(getLoggedInUserId(), "https://www.polmedis.pl/wp-content/uploads/2021/02/avatar-200x200-1.jpg"));
+            assertThat(result).isNotNull();
+            assertThat(result.getResult()).isEqualTo(SUCCESS);
+        }
+
+        @Test
+        @Order(3)
+        @DisplayName("Should successfully delete avatar")
+        void shouldSuccessfullyDeleteAvatar() {
+            login();
+            UpdateResult result = userApi.deleteAvatar(getLoggedInUserId());
+            assertThat(result).isNotNull();
+            assertThat(result.getResult()).isEqualTo(SUCCESS);
+        }
+
+        @Test
+        @DisplayName("Should successfully update password")
+        void shouldSuccessfullyUpdatePassword() {
+            login();
+            UpdateResult result = userApi.updatePassword(UpdatePasswordRequest.builder()
+                    .userId(getLoggedInUserId())
+                    .currentPassword(API_CONFIG.getPassword())
+                    .newPassword(API_CONFIG.getPassword())
+                    .build()
+            );
+            assertThat(result).isNotNull();
+            assertThat(result.getResult()).isEqualTo(SUCCESS);
+        }
+
     }
 
     @NoArgsConstructor(access = AccessLevel.PRIVATE)

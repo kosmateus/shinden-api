@@ -1,12 +1,16 @@
 package com.github.kosmateus.shinden.user;
 
+import com.github.kosmateus.shinden.common.response.UpdateResult;
 import com.github.kosmateus.shinden.exception.ForbiddenException;
 import com.github.kosmateus.shinden.exception.JsoupParserException;
 import com.github.kosmateus.shinden.exception.NotFoundException;
 import com.github.kosmateus.shinden.user.request.AddToListSettingsRequest;
+import com.github.kosmateus.shinden.user.request.AvatarFileUpdateRequest;
+import com.github.kosmateus.shinden.user.request.AvatarUrlUpdateRequest;
 import com.github.kosmateus.shinden.user.request.BaseSettingsRequest;
 import com.github.kosmateus.shinden.user.request.FavouriteTagsRequest;
 import com.github.kosmateus.shinden.user.request.ListsSettingsRequest;
+import com.github.kosmateus.shinden.user.request.UpdatePasswordRequest;
 import com.github.kosmateus.shinden.user.request.UserInformationRequest;
 import com.github.kosmateus.shinden.user.response.Achievements;
 import com.github.kosmateus.shinden.user.response.FavouriteTag;
@@ -15,6 +19,8 @@ import com.github.kosmateus.shinden.user.response.Review;
 import com.github.kosmateus.shinden.user.response.UserInformation;
 import com.github.kosmateus.shinden.user.response.UserOverview;
 import com.github.kosmateus.shinden.user.response.UserSettings;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 
@@ -41,7 +47,7 @@ public interface UserApi {
      * @throws NotFoundException    if the user page is not found
      * @throws JsoupParserException if there is an error parsing the web page
      */
-    UserOverview getOverview(Long userId);
+    UserOverview getOverview(@NotNull Long userId);
 
     /**
      * Retrieves the achievements of a user by their ID.
@@ -54,7 +60,7 @@ public interface UserApi {
      * @throws NotFoundException    if the achievements page is not found
      * @throws JsoupParserException if there is an error parsing the web page
      */
-    Achievements getAchievements(Long userId);
+    Achievements getAchievements(@NotNull Long userId);
 
     /**
      * Retrieves the favourite tags of a user based on the request.
@@ -64,10 +70,11 @@ public interface UserApi {
      *
      * @param request the {@link FavouriteTagsRequest} containing user and tag details
      * @return a list of {@link FavouriteTag} representing the user's favourite tags
-     * @throws NotFoundException    if the favourite tags page is not found
-     * @throws JsoupParserException if there is an error parsing the web page
+     * @throws NotFoundException       if the favourite tags page is not found
+     * @throws JsoupParserException    if there is an error parsing the web page
+     * @throws IllegalArgumentException if the request is null or contains invalid data
      */
-    List<FavouriteTag> getFavouriteTags(FavouriteTagsRequest request);
+    List<FavouriteTag> getFavouriteTags(@Valid @NotNull FavouriteTagsRequest request);
 
     /**
      * Retrieves the reviews of a user by their ID.
@@ -80,7 +87,7 @@ public interface UserApi {
      * @throws NotFoundException    if the reviews page is not found
      * @throws JsoupParserException if there is an error parsing the web page
      */
-    List<Review> getReviews(Long userId);
+    List<Review> getReviews(@NotNull Long userId);
 
     /**
      * Retrieves the recommendations of a user by their ID.
@@ -93,7 +100,7 @@ public interface UserApi {
      * @throws NotFoundException    if the recommendations page is not found
      * @throws JsoupParserException if there is an error parsing the web page
      */
-    List<Recommendation> getRecommendations(Long userId);
+    List<Recommendation> getRecommendations(@NotNull Long userId);
 
     /**
      * Retrieves the information of a user by their ID.
@@ -107,7 +114,7 @@ public interface UserApi {
      * @throws ForbiddenException   if access to the information page is forbidden
      * @throws JsoupParserException if there is an error parsing the web page
      */
-    UserInformation getInformation(Long userId);
+    UserInformation getInformation(@NotNull Long userId);
 
     /**
      * Updates the information of a user.
@@ -116,10 +123,13 @@ public interface UserApi {
      * </p>
      *
      * @param request the {@link UserInformationRequest} containing updated user information
-     * @throws NotFoundException    if the information page is not found
-     * @throws JsoupParserException if there is an error parsing the web page
+     * @return an {@link UpdateResult} containing the result of the update operation.
+     * @throws NotFoundException       if the information page is not found
+     * @throws ForbiddenException      if the user is not authorized to update the information
+     * @throws JsoupParserException    if there is an error parsing the web page
+     * @throws IllegalArgumentException if the request is null or contains invalid data
      */
-    void updateInformation(UserInformationRequest request);
+    UpdateResult updateInformation(@Valid @NotNull UserInformationRequest request);
 
     /**
      * Retrieves the settings of a user by their ID.
@@ -130,9 +140,10 @@ public interface UserApi {
      * @param userId the ID of the user
      * @return the {@link UserSettings} containing the user's settings
      * @throws NotFoundException    if the settings page is not found
+     * @throws ForbiddenException   if access to the settings page is forbidden
      * @throws JsoupParserException if there is an error parsing the web page
      */
-    UserSettings getSettings(Long userId);
+    UserSettings getSettings(@NotNull Long userId);
 
     /**
      * Updates the base settings of a user.
@@ -141,10 +152,13 @@ public interface UserApi {
      * </p>
      *
      * @param request the {@link BaseSettingsRequest} containing the updated base settings
-     * @throws NotFoundException    if the settings page is not found
-     * @throws JsoupParserException if there is an error parsing the web page
+     * @return an {@link UpdateResult} containing the result of the update operation.
+     * @throws NotFoundException       if the settings page is not found
+     * @throws ForbiddenException      if the user is not authorized to update the settings
+     * @throws JsoupParserException    if there is an error parsing the web page
+     * @throws IllegalArgumentException if the request is null or contains invalid data
      */
-    void updateBaseSettings(BaseSettingsRequest request);
+    UpdateResult updateBaseSettings(@Valid @NotNull BaseSettingsRequest request);
 
     /**
      * Updates the list settings of a user.
@@ -153,10 +167,13 @@ public interface UserApi {
      * </p>
      *
      * @param request the {@link ListsSettingsRequest} containing the updated list settings
-     * @throws NotFoundException    if the settings page is not found
-     * @throws JsoupParserException if there is an error parsing the web page
+     * @return an {@link UpdateResult} containing the result of the update operation.
+     * @throws NotFoundException       if the settings page is not found
+     * @throws ForbiddenException      if the user is not authorized to update the settings
+     * @throws JsoupParserException    if there is an error parsing the web page
+     * @throws IllegalArgumentException if the request is null or contains invalid data
      */
-    void updateListsSettings(ListsSettingsRequest request);
+    UpdateResult updateListsSettings(@Valid @NotNull ListsSettingsRequest request);
 
     /**
      * Updates the "Add to List" settings of a user.
@@ -165,8 +182,79 @@ public interface UserApi {
      * </p>
      *
      * @param request the {@link AddToListSettingsRequest} containing the updated "Add to List" settings
-     * @throws NotFoundException    if the settings page is not found
-     * @throws JsoupParserException if there is an error parsing the web page
+     * @return an {@link UpdateResult} containing the result of the update operation.
+     * @throws NotFoundException       if the settings page is not found
+     * @throws ForbiddenException      if the user is not authorized to update the settings
+     * @throws JsoupParserException    if there is an error parsing the web page
+     * @throws IllegalArgumentException if the request is null or contains invalid data
      */
-    void updateAddToListSettings(AddToListSettingsRequest request);
+    UpdateResult updateAddToListSettings(@Valid @NotNull AddToListSettingsRequest request);
+
+    /**
+     * Updates the avatar of a user using a file.
+     * <p>
+     * This method updates the avatar for a user by uploading a new image file provided in the
+     * {@link AvatarFileUpdateRequest}. The file is expected to be a valid image that will replace
+     * the user's current avatar.
+     * </p>
+     *
+     * @param request the {@link AvatarFileUpdateRequest} containing the user ID and the image file
+     *                to be uploaded as the new avatar. Must not be null.
+     * @return an {@link UpdateResult} containing the result of the update operation.
+     * @throws NotFoundException        if the user is not found
+     * @throws ForbiddenException       if the user is not authorized to update the avatar
+     * @throws IllegalArgumentException if the request is null or contains an invalid file
+     */
+    UpdateResult updateAvatar(@Valid @NotNull AvatarFileUpdateRequest request);
+
+    /**
+     * Updates the avatar of a user using a URL.
+     * <p>
+     * This method updates the avatar for a user by fetching the image from the URL provided in the
+     * {@link AvatarUrlUpdateRequest}. The URL is expected to point to a valid image that will replace
+     * the user's current avatar.
+     * </p>
+     *
+     * @param request the {@link AvatarUrlUpdateRequest} containing the user ID and the URL of the new
+     *                avatar image. Must not be null.
+     * @return an {@link UpdateResult} containing the result of the update operation.
+     * @throws NotFoundException        if the user is not found
+     * @throws ForbiddenException       if the user is not authorized to update the avatar
+     * @throws JsoupParserException     if there is an error parsing the web page
+     * @throws IllegalArgumentException if the request is null or contains an invalid URL
+     */
+    UpdateResult updateAvatar(@Valid @NotNull AvatarUrlUpdateRequest request);
+
+    /**
+     * Deletes the avatar of a user.
+     * <p>
+     * This method removes the avatar associated with the specified user ID. After deletion,
+     * the user will no longer have an avatar associated with their profile.
+     * </p>
+     *
+     * @param userId the unique identifier of the user whose avatar is to be deleted. Must not be null.
+     * @return an {@link UpdateResult} containing the result of the delete operation.
+     * @throws NotFoundException       if the user is not found
+     * @throws ForbiddenException      if the user is not authorized to delete the avatar
+     * @throws IllegalArgumentException if the userId is null
+     */
+    UpdateResult deleteAvatar(@NotNull Long userId);
+
+    /**
+     * Updates the user's password.
+     * <p>
+     * This method attempts to update the password for the user specified in the {@link UpdatePasswordRequest}.
+     * It validates the current password, and if valid, updates it to the new password provided in the request.
+     * </p>
+     *
+     * @param request the {@link UpdatePasswordRequest} containing the user ID, current password, and new password.
+     *                Must not be null.
+     * @return an {@link UpdateResult} containing the result of the password update operation, including
+     * whether it was successful and any reasons for failure if applicable.
+     * @throws IllegalArgumentException if the request is null or contains invalid data.
+     * @throws NotFoundException        if the user is not found.
+     * @throws ForbiddenException       if the current password is incorrect or the user is not authorized to update the password.
+     */
+    UpdateResult updatePassword(@Valid @NotNull UpdatePasswordRequest request);
+
 }
