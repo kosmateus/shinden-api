@@ -247,4 +247,28 @@ class UserJsoupClient {
                         .build()
         );
     }
+
+    /**
+     * Retrieves the MyAnimeList (MAL) import page for a specific user.
+     * <p>
+     * This method sends an HTTP GET request to fetch the page that allows users to import their
+     * MyAnimeList data into their Shinden account. The method returns a {@link ResponseHandler}
+     * containing the HTML document of the MAL import page.
+     * </p>
+     *
+     * @param userId the unique identifier of the user whose MAL import page is being requested.
+     *               Must not be null.
+     * @return a {@link ResponseHandler} containing the HTML {@link Document} of the MAL import page.
+     * @throws IllegalArgumentException if the userId is null or invalid.
+     * @throws NotFoundException        if the user or the MAL import page is not found.
+     * @throws ForbiddenException       if the user is not authorized to access the MAL import page.
+     */
+    ResponseHandler<Document> getImportMalListPage(Long userId) {
+        return client.get(
+                HttpRequest.builder()
+                        .target(SHINDEN_URL)
+                        .path("/user/" + userId + "/import-mal")
+                        .build()
+        );
+    }
 }

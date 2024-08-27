@@ -9,6 +9,7 @@ import com.github.kosmateus.shinden.user.request.AvatarFileUpdateRequest;
 import com.github.kosmateus.shinden.user.request.AvatarUrlUpdateRequest;
 import com.github.kosmateus.shinden.user.request.BaseSettingsRequest;
 import com.github.kosmateus.shinden.user.request.FavouriteTagsRequest;
+import com.github.kosmateus.shinden.user.request.ImportMalListRequest;
 import com.github.kosmateus.shinden.user.request.ListsSettingsRequest;
 import com.github.kosmateus.shinden.user.request.UpdatePasswordRequest;
 import com.github.kosmateus.shinden.user.request.UserInformationRequest;
@@ -257,4 +258,20 @@ public interface UserApi {
      */
     UpdateResult updatePassword(@Valid @NotNull UpdatePasswordRequest request);
 
+    /**
+     * Imports a MAL list for a user.
+     * <p>
+     * This method imports a MAL list for a user by uploading a file containing the MAL list data.
+     * The file is expected to be in a valid format that can be processed by the platform.
+     * </p>
+     *
+     * @param request the {@link ImportMalListRequest} containing the user ID, MAL list file, and import type.
+     *                Must not be null.
+     * @return an {@link UpdateResult} containing the result of the MAL list import operation, including
+     * whether it was successful and any reasons for failure if applicable.
+     * @throws IllegalArgumentException if the request is null or contains invalid data.
+     * @throws NotFoundException        if the user is not found.
+     * @throws ForbiddenException       if the user is not authorized to import the MAL list.
+     */
+    UpdateResult importMalList(@Valid @NotNull ImportMalListRequest request);
 }

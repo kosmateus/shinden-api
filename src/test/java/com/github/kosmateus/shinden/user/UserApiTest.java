@@ -3,6 +3,7 @@ package com.github.kosmateus.shinden.user;
 import com.github.kosmateus.shinden.BaseTest;
 import com.github.kosmateus.shinden.common.response.UpdateResult;
 import com.github.kosmateus.shinden.http.request.LocalFileResource;
+import com.github.kosmateus.shinden.i18n.Translatable;
 import com.github.kosmateus.shinden.user.common.AnimeListSettings;
 import com.github.kosmateus.shinden.user.common.MangaListSettings;
 import com.github.kosmateus.shinden.user.common.PageSettings;
@@ -26,6 +27,8 @@ import com.github.kosmateus.shinden.user.request.FavouriteTagsRequest;
 import com.github.kosmateus.shinden.user.request.FavouriteTagsRequest.ListType;
 import com.github.kosmateus.shinden.user.request.FavouriteTagsRequest.RateType;
 import com.github.kosmateus.shinden.user.request.FavouriteTagsRequest.TagType;
+import com.github.kosmateus.shinden.user.request.ImportMalListRequest;
+import com.github.kosmateus.shinden.user.request.ImportMalListRequest.ImportType;
 import com.github.kosmateus.shinden.user.request.ListsSettingsRequest;
 import com.github.kosmateus.shinden.user.request.UpdatePasswordRequest;
 import com.github.kosmateus.shinden.user.request.UserInformationRequest;
@@ -59,6 +62,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 
+import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -152,31 +156,6 @@ class UserApiTest extends BaseTest {
                 assertThat(favouriteTags).allMatch(tag -> tag.getSpentTime() != null);
             }
 
-        }
-
-        @Test
-        @DisplayName("Should properly translate request enum params")
-        void shouldProperlyTranslateRequestEnumParams() {
-            assertThat(ListType.BOTH.getTranslation()).isEqualTo(getTranslation("user.favorite.tags.list-type.both"));
-            assertThat(ListType.ANIME.getTranslation()).isEqualTo(getTranslation("user.favorite.tags.list-type.anime"));
-            assertThat(ListType.MANGA.getTranslation()).isEqualTo(getTranslation("user.favorite.tags.list-type.manga"));
-
-            assertThat(RateType.TOTAL.getTranslation()).isEqualTo(getTranslation("user.favorite.tags.rate-type.total"));
-            assertThat(RateType.STORY.getTranslation()).isEqualTo(getTranslation("user.favorite.tags.rate-type.story"));
-            assertThat(RateType.GRAPHIC.getTranslation()).isEqualTo(getTranslation("user.favorite.tags.rate-type.graphic"));
-            assertThat(RateType.MUSIC.getTranslation()).isEqualTo(getTranslation("user.favorite.tags.rate-type.music"));
-            assertThat(RateType.LINE.getTranslation()).isEqualTo(getTranslation("user.favorite.tags.rate-type.line"));
-            assertThat(RateType.CHARACTERS.getTranslation()).isEqualTo(getTranslation("user.favorite.tags.rate-type.characters"));
-
-            assertThat(TagType.GENRE.getTranslation()).isEqualTo(getTranslation("user.favorite.tags.tag-type.genre"));
-            assertThat(TagType.TARGET_GROUP.getTranslation()).isEqualTo(getTranslation("user.favorite.tags.tag-type.target-group"));
-            assertThat(TagType.ENTITY.getTranslation()).isEqualTo(getTranslation("user.favorite.tags.tag-type.entity"));
-            assertThat(TagType.PLACE.getTranslation()).isEqualTo(getTranslation("user.favorite.tags.tag-type.place"));
-            assertThat(TagType.TAG.getTranslation()).isEqualTo(getTranslation("user.favorite.tags.tag-type.tag"));
-            assertThat(TagType.STUDIO.getTranslation()).isEqualTo(getTranslation("user.favorite.tags.tag-type.studio"));
-            assertThat(TagType.PRODUCTION_TYPE.getTranslation()).isEqualTo(getTranslation("user.favorite.tags.tag-type.production-type"));
-            assertThat(TagType.SERIALIZATION.getTranslation()).isEqualTo(getTranslation("user.favorite.tags.tag-type.serialization"));
-            assertThat(TagType.SOURCE.getTranslation()).isEqualTo(getTranslation("user.favorite.tags.tag-type.source"));
         }
     }
 
@@ -276,14 +255,6 @@ class UserApiTest extends BaseTest {
             assertThat(information.getBirthYear()).isEqualTo(1990);
             assertThat(information.getBirthMonth()).isEqualTo(1);
             assertThat(information.getBirthDay()).isEqualTo(1);
-        }
-
-        @Test
-        @DisplayName("Should properly translate request enum params")
-        void shouldProperlyTranslateRequestEnumParams() {
-            assertThat(UserGender.MALE.getTranslation()).isEqualTo(getTranslation("user.information.edit.gender.male"));
-            assertThat(UserGender.FEMALE.getTranslation()).isEqualTo(getTranslation("user.information.edit.gender.female"));
-            assertThat(UserGender.NONE.getTranslation()).isEqualTo(getTranslation("user.information.edit.gender.none"));
         }
     }
 
@@ -491,6 +462,83 @@ class UserApiTest extends BaseTest {
         }
     }
 
+    @Nested
+    @DisplayName("MAL List Import tests")
+    class MalListImportTest {
+
+        @Test
+        @DisplayName("Should successfully import MAL list")
+        void shouldSuccessfullyImportMalList() throws IOException {
+            login();
+
+            File malListFile = ResourceLoader.loadFile("user/anime-list.gz");
+
+            ImportMalListRequest request = ImportMalListRequest.builder()
+                    .userId(getLoggedInUserId())
+                    .importType(ImportType.FILL)
+                    .malListFile(LocalFileResource.of(malListFile))
+                    .build();
+
+            UpdateResult result = userApi.importMalList(request);
+
+            assertThat(result).isNotNull();
+            assertThat(result.getResult()).isEqualTo(SUCCESS);
+        }
+
+        @Test
+        @DisplayName("Should successfully import MAL list with REPLACE type")
+        void shouldSuccessfullyImportMalListWithReplaceType() throws IOException {
+            login();
+
+            File malListFile = ResourceLoader.loadFile("user/anime-list.gz");
+
+            ImportMalListRequest request = ImportMalListRequest.builder()
+                    .userId(getLoggedInUserId())
+                    .importType(ImportType.REPLACE)
+                    .malListFile(LocalFileResource.of(malListFile))
+                    .build();
+
+            UpdateResult result = userApi.importMalList(request);
+
+            assertThat(result).isNotNull();
+            assertThat(result.getResult()).isEqualTo(SUCCESS);
+        }
+    }
+
+    @Nested
+    @DisplayName("Translation tests")
+    class TranslationTests {
+
+        @Test
+        @DisplayName("Should properly translate all Translatable enums")
+        void shouldProperlyTranslateAllTranslatableEnums() {
+            assertTranslations(ImportType.values());
+            assertTranslations(ChapterLanguage.values());
+            assertTranslations(AnimeStatus.values());
+            assertTranslations(SubtitlesLanguage.values());
+            assertTranslations(SkipFillers.values());
+            assertTranslations(ChapterStatus.values());
+            assertTranslations(ListType.values());
+            assertTranslations(RateType.values());
+            assertTranslations(TagType.values());
+            assertTranslations(StatusAutoChange.values());
+        }
+
+        private <T extends Enum<T> & Translatable> void assertTranslations(T[] values) {
+            for (T value : values) {
+                String translation = getTranslation(value.getTranslationKey());
+                assertThat(translation)
+                        .withFailMessage("Translation missing for %s.%s with key %s",
+                                value.getDeclaringClass().getSimpleName(), value.name(), value.getTranslationKey())
+                        .isNotBlank();
+                assertThat(translation)
+                        .withFailMessage("Translation for %s.%s is the same as the key: %s",
+                                value.getDeclaringClass().getSimpleName(), value.name(), value.getTranslationKey())
+                        .isNotEqualTo(value.getTranslationKey());
+            }
+        }
+    }
+
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     static final class UserAsserts {
 
@@ -598,9 +646,11 @@ class UserApiTest extends BaseTest {
 
         @Override
         public Stream<? extends Arguments> provideArguments(ExtensionContext context) {
-            return Stream.of(FavouriteTagsRequest.ListType.values()).flatMap(listType -> Stream.of(FavouriteTagsRequest.RateType.values()).flatMap(
-                    rateType -> Stream.of(FavouriteTagsRequest.TagType.values()).map(tagType -> Arguments.of(
+            return Stream.of(ListType.values()).flatMap(listType -> Stream.of(RateType.values()).flatMap(
+                    rateType -> Stream.of(TagType.values()).map(tagType -> Arguments.of(
                             (FavouriteTagsRequest.userId(API_CONFIG.getUnauthenticatedUserId())).listType(listType).rateType(rateType).tagType(tagType).build()))));
         }
     }
 }
+
+

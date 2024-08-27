@@ -87,7 +87,11 @@
             <groupId>org.hibernate.validator</groupId>
             <version>6.2.0.Final</version> <!-- Wersja z obsługą javax.validation -->
         </dependency>
-
+        <dependency>
+            <artifactId>snakeyaml</artifactId>
+            <groupId>org.yaml</groupId>
+            <version>2.0</version>
+        </dependency>
 
         <!--TEST-->
         <dependency>

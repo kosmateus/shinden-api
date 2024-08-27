@@ -82,4 +82,24 @@ class UserHttpClient {
                 .path("/user/" + userId + "/edit_passwd")
                 .build(), String.class);
     }
+
+    /**
+     * Imports a MAL list for a user.
+     * <p>
+     * This method imports a MAL list for a user by uploading a file containing the MAL list data.
+     * The file is expected to be in a valid format that can be processed by the platform.
+     * </p>
+     *
+     * @param userId   the ID of the user whose MAL list is being imported
+     * @param formData a map containing form fields required for the MAL list import
+     * @return a {@link ResponseHandler} containing the response as a string
+     */
+    ResponseHandler<String> importMalList(Long userId, Map<String, String> formData, FileResource fileResource) {
+        return httpClient.post(HttpRequest.builder()
+                .target(SHINDEN_URL)
+                .formFields(formData)
+                .fileResources(ImmutableMap.of("mal-list", fileResource))
+                .path("/user/" + userId + "/import_mal/1")
+                .build(), String.class);
+    }
 }

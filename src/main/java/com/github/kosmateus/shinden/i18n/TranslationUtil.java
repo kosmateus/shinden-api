@@ -1,8 +1,15 @@
 package com.github.kosmateus.shinden.i18n;
 
+import org.yaml.snakeyaml.LoaderOptions;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.nodes.Node;
+import org.yaml.snakeyaml.nodes.ScalarNode;
+
+import java.io.InputStream;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
 /**
@@ -20,6 +27,7 @@ public final class TranslationUtil {
 
     private static Locale locale = Locale.getDefault();
     private static boolean initialized = false;
+    private static Map<String, String> TRANSLATIONS;
 
     /**
      * Initializes the translation utility with the specified locale.
@@ -58,8 +66,6 @@ public final class TranslationUtil {
         return TRANSLATIONS.get(key);
     }
 
-    private static Map<String, String> TRANSLATIONS;
-
     /**
      * Retrieves a group of translations that share a common prefix.
      * <p>
@@ -90,11 +96,82 @@ public final class TranslationUtil {
      * </p>
      */
     private static void loadTranslations() {
-        ResourceBundle translations = ResourceBundle.getBundle("translations", locale, new UTF8Control());
-        TRANSLATIONS = translations.keySet().stream()
-                .collect(Collectors.toMap(
-                        key -> key,
-                        translations::getString
-                ));
+        Constructor constructor = new Constructor(new LoaderOptions()) {
+            @Override
+            protected Object constructObject(Node node) {
+                if (node instanceof ScalarNode) {
+                    return constructScalarAsString((ScalarNode) node);
+                }
+                return super.constructObject(node);
+            }
+
+            private String constructScalarAsString(ScalarNode node) {
+                return node.getValue();
+            }
+        };
+        Yaml yaml = new Yaml(constructor);
+        String fileName = getTranslationFileName();
+        try (InputStream inputStream = TranslationUtil.class.getClassLoader().getResourceAsStream(fileName)) {
+            if (inputStream == null) {
+                throw new RuntimeException("Translation file not found: " + fileName);
+            }
+            Map<String, Object> yamlMap = yaml.load(inputStream);
+            TRANSLATIONS = flattenYamlMap(yamlMap);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to load translations", e);
+        }
+    }
+
+    private static String getTranslationFileName() {
+        String baseName = "translation";
+        String language = locale.getLanguage();
+        String country = locale.getCountry();
+
+        // Try to load the most specific file first, then fall back to more general ones
+        String[] fileNames = {
+                baseName + "-" + language + "-" + country + ".yaml",
+                baseName + "-" + language + ".yaml",
+                baseName + ".yaml"
+        };
+
+        for (String fileName : fileNames) {
+            if (TranslationUtil.class.getClassLoader().getResource(fileName) != null) {
+                return fileName;
+            }
+        }
+
+        // If no file is found, return the default file name
+        return baseName + ".yaml";
+    }
+
+    private static Map<String, String> flattenYamlMap(Map<String, Object> yamlMap) {
+        Map<String, String> flatMap = new HashMap<>();
+        flattenYamlMapRecursive(yamlMap, "", flatMap);
+        return flatMap;
+    }
+
+    private static void flattenYamlMapRecursive(Map<String, Object> yamlMap, String prefix, Map<String, String> flatMap) {
+        for (Map.Entry<String, Object> entry : yamlMap.entrySet()) {
+            String key = prefix.isEmpty() ? String.valueOf(entry.getKey()) : prefix + "." + String.valueOf(entry.getKey());
+            Object value = entry.getValue();
+
+            if (value instanceof Map) {
+                @SuppressWarnings("unchecked")
+                Map<String, Object> nestedMap = (Map<String, Object>) value;
+                flattenYamlMapRecursive(nestedMap, key, flatMap);
+            } else {
+                flatMap.put(key, convertToString(value));
+            }
+        }
+    }
+
+    private static String convertToString(Object value) {
+        if (value == null) {
+            return "";
+        } else if (value instanceof Boolean) {
+            return ((Boolean) value) ? "true" : "false";
+        } else {
+            return value.toString();
+        }
     }
 }

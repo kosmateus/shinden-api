@@ -9,6 +9,7 @@ import com.github.kosmateus.shinden.user.common.UserId;
 import com.github.kosmateus.shinden.user.mapper.UserAccountMapper;
 import com.github.kosmateus.shinden.user.mapper.UserAchievementsMapper;
 import com.github.kosmateus.shinden.user.mapper.UserFavouriteTagsMapper;
+import com.github.kosmateus.shinden.user.mapper.UserImportMalListMapper;
 import com.github.kosmateus.shinden.user.mapper.UserInformationMapper;
 import com.github.kosmateus.shinden.user.mapper.UserOverviewMapper;
 import com.github.kosmateus.shinden.user.mapper.UserRecommendationMapper;
@@ -19,6 +20,7 @@ import com.github.kosmateus.shinden.user.request.AvatarFileUpdateRequest;
 import com.github.kosmateus.shinden.user.request.AvatarUrlUpdateRequest;
 import com.github.kosmateus.shinden.user.request.BaseSettingsRequest;
 import com.github.kosmateus.shinden.user.request.FavouriteTagsRequest;
+import com.github.kosmateus.shinden.user.request.ImportMalListRequest;
 import com.github.kosmateus.shinden.user.request.ListsSettingsRequest;
 import com.github.kosmateus.shinden.user.request.UpdatePasswordRequest;
 import com.github.kosmateus.shinden.user.request.UserInformationRequest;
@@ -66,6 +68,7 @@ class UserApiImpl implements UserApi {
     private final UserInformationMapper informationMapper;
     private final UserSettingsMapper settingsMapper;
     private final UserAccountMapper accountMapper;
+    private final UserImportMalListMapper userImportMalListMapper;
 
     @Override
     public UserOverview getOverview(Long userId) {
@@ -178,6 +181,14 @@ class UserApiImpl implements UserApi {
         ResponseHandler<Document> settingsPage = jsoupClient.getEditPasswordPage(request.getUserId());
         Map<String, String> formData = accountMapper.mapToUpdatePassword(settingsPage.getEntity(), request);
         return commonMapper.map(httpClient.updatePassword(request.getUserId(), formData));
+    }
+
+    @Override
+    public UpdateResult importMalList(ImportMalListRequest request) {
+        ResponseHandler<Document> importPage = jsoupClient.getImportMalListPage(request.getUserId());
+        validateResponse(importPage);
+        Map<String, String> formData = userImportMalListMapper.map(importPage.getEntity(), request);
+        return commonMapper.map(httpClient.importMalList(request.getUserId(), formData, request.getMalListFile()));
     }
 
     private ResponseHandler<Document> getSettingsPage(UserId request) {

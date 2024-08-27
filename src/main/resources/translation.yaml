@@ -1,0 +1,84 @@
+user:
+  favorite:
+    tags:
+      list-type:
+        both: Łącznie
+        anime: Anime
+        manga: Manga
+      rate-type:
+        total: Ogólna
+        story: Fabuła
+        graphic: Grafika
+        music: Muzyka
+        line: Kreska
+        characters: Postacie
+      tag-type:
+        genre: Gatunki
+        target-group: Grupy docelowe
+        entity: Rodzaje postaci
+        place: Miejsce i czas
+        tag: Pozostałe tagi
+        studio: Studio
+        production-type: Typy produkcji
+        serialization: Wydawnictwa
+        source: Pierwowzór
+  information:
+    edit:
+      gender:
+        male: Mężczyzna
+        female: Kobieta
+        none: "?"
+  settings:
+    edit:
+      page-theme:
+        defaukt: Domyślna skórka
+        simple-blue: Simple Blue
+        bakemono: Bakemono
+        helloween: Helloween
+        higurashi: Higurashi
+        christmas: Christmas
+        christmas-no-snow: Christmas bez śniegu
+      page-main-menu:
+        all: przypięte na górze strony (pływające)
+        mobile: przypięte na urządzeniach rozpoznanych jako mobilne (tablety i telefony)
+        phone: przypięte na urządzeniach rozpoznanych jako telefony
+        none: zawsze na początku strony
+      show:
+        yes: Tak
+        no: Nie
+      slider-position:
+        no-limit: brak ograniczeń
+        three-items: 3 pozycje
+        six-items: 6 pozycji
+        twelve-items: 12 pozycji
+      subtitle-lang:
+        none: "--"
+        jp: Japoński
+        pl: Polski
+        en: Angielski
+        cn: Chiński
+        kr: Koreański
+      anime-status:
+        in-progress: Oglądam
+        completed: Obejrzane
+        skip: Pomijam
+        hold: Wstrzymane
+        dropped: Porzucone
+        plan: Planuję
+      skip-fillers:
+        no: Nie
+        yes: Tak
+      status-autochange:
+        no: Nie
+        yes: Tak
+      chapter-status:
+        in-progress: Czytam
+        completed: Przeczytałem
+        skip: Pomijam
+        hold: Wstrzymane
+        dropped: Porzucone
+        plan: Planuję
+  import-mal-list:
+    import-type:
+      fill: Uzupełnij listę (nie zmieniaj statusów)
+      replace: Nadpisz statusy
