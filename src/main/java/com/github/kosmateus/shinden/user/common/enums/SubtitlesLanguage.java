@@ -50,7 +50,7 @@ public enum SubtitlesLanguage implements Translatable, FormParam {
      */
     KOREAN("kr", "user.settings.edit.subtitle-lang.kr");
 
-    private final String value;
+    private final String formValue;
     private final String translationKey;
 
     /**
@@ -63,7 +63,7 @@ public enum SubtitlesLanguage implements Translatable, FormParam {
      * @return the form parameter name, "lang[]".
      */
     @Override
-    public String getParameter() {
+    public String getFormParameter() {
         return "lang[]";
     }
 }

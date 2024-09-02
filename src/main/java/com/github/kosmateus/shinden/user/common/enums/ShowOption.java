@@ -31,7 +31,7 @@ public enum ShowOption implements Translatable, FormParam {
      */
     NO("no", "user.settings.edit.show.no");
 
-    private final String value;
+    private final String formValue;
     private final String translationKey;
 
     /**
@@ -44,7 +44,7 @@ public enum ShowOption implements Translatable, FormParam {
      * @return the form parameter name, "show".
      */
     @Override
-    public String getParameter() {
+    public String getFormParameter() {
         return "show";
     }
 }

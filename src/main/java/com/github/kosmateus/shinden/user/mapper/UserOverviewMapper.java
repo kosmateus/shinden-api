@@ -1,5 +1,8 @@
 package com.github.kosmateus.shinden.user.mapper;
 
+import com.github.kosmateus.shinden.user.common.enums.TitleType;
+import com.github.kosmateus.shinden.user.common.enums.UrlType;
+import com.github.kosmateus.shinden.user.common.enums.UserTitleStatus;
 import com.github.kosmateus.shinden.user.response.Comment;
 import com.github.kosmateus.shinden.user.response.EntityOverview;
 import com.github.kosmateus.shinden.user.response.FavouriteMediaItem;
@@ -9,11 +12,14 @@ import com.github.kosmateus.shinden.user.response.UserOverview;
 import com.github.kosmateus.shinden.user.response.UserOverview.UserOverviewBuilder;
 import com.github.kosmateus.shinden.utils.PatternMatcher;
 import com.github.kosmateus.shinden.utils.jsoup.BaseDocumentMapper;
+import com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 
 import static com.github.kosmateus.shinden.constants.ShindenConstants.MEDIA_ID_MATCHER;
 import static com.github.kosmateus.shinden.constants.ShindenConstants.MEDIA_URL_TYPE_MATCHER;
@@ -28,7 +34,6 @@ public class UserOverviewMapper extends BaseDocumentMapper {
     private static final PatternMatcher FIRST_NAME_MATCHER = PatternMatcher.nullableMatch("^[^,]*", 0);
     private static final PatternMatcher LAST_NAME_MATCHER = PatternMatcher.nullableMatch("(?<=,).*", 0);
 
-
     public UserOverview map(Document document) {
         return userBasicInformation(document)
                 .about(getAbout(document))
@@ -42,6 +47,20 @@ public class UserOverviewMapper extends BaseDocumentMapper {
                 .mangaListUpdates(getMangaListUpdates(document))
                 .comments(getComments(document))
                 .build();
+    }
+
+    @Override
+    protected String getMapperCode() {
+        return "user.overview";
+    }
+
+    @Override
+    protected Map<Class<?>, Function<String, ?>> typeMappers() {
+        return ImmutableMap.of(
+                TitleType.class, TitleType::fromValue,
+                UrlType.class, UrlType::fromValue,
+                UserTitleStatus.class, UserTitleStatus::fromValue
+        );
     }
 
     private UserOverviewBuilder userBasicInformation(Document document) {
@@ -301,6 +320,7 @@ public class UserOverviewMapper extends BaseDocumentMapper {
                         .selectFirst("h3 > a")
                         .attr("href")
                         .pattern(MEDIA_URL_TYPE_MATCHER)
+                        .mapTo(UrlType.class)
                         .orThrowWithCode("favourite." + code + ".url-type")
                 )
                 .title(mapper.with(element)
@@ -316,6 +336,7 @@ public class UserOverviewMapper extends BaseDocumentMapper {
                 .type(mapper.with(element)
                         .selectFirst("span:nth-of-type(2)")
                         .text()
+                        .mapTo(TitleType.class)
                         .orThrowWithCode("favourite." + code + ".type")
                 )
                 .year(mapper.with(element)
@@ -338,6 +359,7 @@ public class UserOverviewMapper extends BaseDocumentMapper {
                         .selectFirst("h3 > a")
                         .attr("href")
                         .pattern(MEDIA_URL_TYPE_MATCHER)
+                        .mapTo(UrlType.class)
                         .orThrowWithCode("favourite." + code + ".url-type")
                 )
                 .imageUrl(mapper.with(element)
@@ -368,6 +390,7 @@ public class UserOverviewMapper extends BaseDocumentMapper {
                         .selectFirst("div > a")
                         .attr("href")
                         .pattern(MEDIA_URL_TYPE_MATCHER)
+                        .mapTo(UrlType.class)
                         .orElse(null)
                 )
                 .mediaTitle(mapper.with(element)
@@ -391,6 +414,7 @@ public class UserOverviewMapper extends BaseDocumentMapper {
                         .selectFirst("a")
                         .attr("href")
                         .pattern(MEDIA_URL_TYPE_MATCHER)
+                        .mapTo(UrlType.class)
                         .orThrowWithCode("list-item." + code + ".url-type")
                 )
                 .imageUrl(mapper.with(item)
@@ -411,8 +435,9 @@ public class UserOverviewMapper extends BaseDocumentMapper {
                 )
                 .status(mapper.with(item)
                         .selectFirst("span")
-                        .text()
+                        .ownText()
                         .replace(":", "")
+                        .mapTo(UserTitleStatus.class)
                         .orThrowWithCode("list-item." + code + ".status")
                 )
                 .build();
@@ -467,11 +492,6 @@ public class UserOverviewMapper extends BaseDocumentMapper {
                         .orThrowWithCode("comment.created-at")
                 )
                 .build();
-    }
-
-    @Override
-    protected String getMapperCode() {
-        return "user.overview";
     }
 
 }

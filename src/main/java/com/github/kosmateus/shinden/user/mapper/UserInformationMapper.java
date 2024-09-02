@@ -32,7 +32,7 @@ public class UserInformationMapper extends BaseDocumentMapper {
                         .orThrowWithCode("lang"),
                 "signature", merge(currentUserInformation.getSignature(), request.getSignature(), acceptNullFields),
                 "about_me", merge(currentUserInformation.getAboutMe(), request.getAboutMe(), acceptNullFields),
-                "gender", merge(currentUserInformation.getGender(), request.getGender(), acceptNullFields).getValue(),
+                "gender", merge(currentUserInformation.getGender(), request.getGender(), acceptNullFields).getFormValue(),
                 "birthdate_day", merge(currentUserInformation.getBirthDay(), day(birthDate), acceptNullFields).toString(),
                 "birthdate_month", merge(currentUserInformation.getBirthMonth(), month(birthDate), acceptNullFields).toString(),
                 "birthdate_year", merge(currentUserInformation.getBirthYear(), year(birthDate), acceptNullFields).toString(),

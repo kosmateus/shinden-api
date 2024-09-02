@@ -40,7 +40,7 @@ public enum PageMainMenu implements Translatable, FormParam {
      */
     NONE("none", "user.settings.edit.page-main-menu.none");
 
-    private final String value;
+    private final String formValue;
     private final String translationKey;
 
     /**
@@ -53,7 +53,7 @@ public enum PageMainMenu implements Translatable, FormParam {
      * @return the form parameter name, "pinned_menu".
      */
     @Override
-    public String getParameter() {
+    public String getFormParameter() {
         return "pinned_menu";
     }
 }

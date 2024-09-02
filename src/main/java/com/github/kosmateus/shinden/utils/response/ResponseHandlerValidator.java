@@ -36,6 +36,7 @@ public class ResponseHandlerValidator {
      * @throws NotFoundException        if the response indicates that the resource was not found.
      * @throws ForbiddenException       if the response indicates that access is forbidden.
      * @throws IllegalArgumentException if the responseHandler is null.
+     * @throws IllegalStateException    if the response is not valid.
      */
     public static void validateResponse(ResponseHandler<?> responseHandler) {
         if (responseHandler == null) {
@@ -47,6 +48,9 @@ public class ResponseHandlerValidator {
         }
         if (responseHandler.isForbidden()) {
             throw new ForbiddenException(responseHandler.getEmptyReason().getErrorDetails().getMessage());
+        }
+        if (responseHandler.hasStatus(800)) {
+            throw new IllegalStateException("The response is not valid", responseHandler.getEmptyReason().getErrorDetails().getCause());
         }
     }
 }

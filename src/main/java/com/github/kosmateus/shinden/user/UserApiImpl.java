@@ -1,6 +1,9 @@
 package com.github.kosmateus.shinden.user;
 
 import com.github.kosmateus.shinden.common.mapper.CommonMapper;
+import com.github.kosmateus.shinden.common.request.Pageable;
+import com.github.kosmateus.shinden.common.response.Page;
+import com.github.kosmateus.shinden.common.response.PageImpl;
 import com.github.kosmateus.shinden.common.response.UpdateResult;
 import com.github.kosmateus.shinden.exception.NotFoundException;
 import com.github.kosmateus.shinden.http.response.HttpStatus;
@@ -16,6 +19,7 @@ import com.github.kosmateus.shinden.user.mapper.UserRecommendationMapper;
 import com.github.kosmateus.shinden.user.mapper.UserReviewsMapper;
 import com.github.kosmateus.shinden.user.mapper.UserSettingsMapper;
 import com.github.kosmateus.shinden.user.request.AddToListSettingsRequest;
+import com.github.kosmateus.shinden.user.request.AnimeListRequest;
 import com.github.kosmateus.shinden.user.request.AvatarFileUpdateRequest;
 import com.github.kosmateus.shinden.user.request.AvatarUrlUpdateRequest;
 import com.github.kosmateus.shinden.user.request.BaseSettingsRequest;
@@ -25,7 +29,9 @@ import com.github.kosmateus.shinden.user.request.ListsSettingsRequest;
 import com.github.kosmateus.shinden.user.request.UpdatePasswordRequest;
 import com.github.kosmateus.shinden.user.request.UserInformationRequest;
 import com.github.kosmateus.shinden.user.response.Achievements;
+import com.github.kosmateus.shinden.user.response.AnimeListItem;
 import com.github.kosmateus.shinden.user.response.FavouriteTag;
+import com.github.kosmateus.shinden.user.response.ListResponse;
 import com.github.kosmateus.shinden.user.response.Recommendation;
 import com.github.kosmateus.shinden.user.response.Review;
 import com.github.kosmateus.shinden.user.response.UserInformation;
@@ -190,6 +196,21 @@ class UserApiImpl implements UserApi {
         Map<String, String> formData = userImportMalListMapper.map(importPage.getEntity(), request);
         return commonMapper.map(httpClient.importMalList(request.getUserId(), formData, request.getMalListFile()));
     }
+
+    @Override
+    public Page<AnimeListItem> getAnimeList(AnimeListRequest request, Pageable pageable) {
+        ResponseHandler<ListResponse<AnimeListItem>> animeList = httpClient.getAnimeList(request, pageable);
+        validateResponse(animeList);
+        return new PageImpl<>(animeList.getEntity().getResult().getItems(), pageable, animeList.getEntity().getResult().getCount());
+    }
+
+    @Override
+    public List<AnimeListItem> getAnimeList(AnimeListRequest request) {
+        ResponseHandler<ListResponse<AnimeListItem>> animeList = httpClient.getAnimeList(request, null);
+        validateResponse(animeList);
+        return animeList.getEntity().getResult().getItems();
+    }
+
 
     private ResponseHandler<Document> getSettingsPage(UserId request) {
         ResponseHandler<Document> settingsPage = jsoupClient.getSettingsPage(request.getUserId());

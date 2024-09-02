@@ -1,10 +1,13 @@
 package com.github.kosmateus.shinden.user;
 
+import com.github.kosmateus.shinden.common.request.Pageable;
+import com.github.kosmateus.shinden.common.response.Page;
 import com.github.kosmateus.shinden.common.response.UpdateResult;
 import com.github.kosmateus.shinden.exception.ForbiddenException;
 import com.github.kosmateus.shinden.exception.JsoupParserException;
 import com.github.kosmateus.shinden.exception.NotFoundException;
 import com.github.kosmateus.shinden.user.request.AddToListSettingsRequest;
+import com.github.kosmateus.shinden.user.request.AnimeListRequest;
 import com.github.kosmateus.shinden.user.request.AvatarFileUpdateRequest;
 import com.github.kosmateus.shinden.user.request.AvatarUrlUpdateRequest;
 import com.github.kosmateus.shinden.user.request.BaseSettingsRequest;
@@ -14,6 +17,7 @@ import com.github.kosmateus.shinden.user.request.ListsSettingsRequest;
 import com.github.kosmateus.shinden.user.request.UpdatePasswordRequest;
 import com.github.kosmateus.shinden.user.request.UserInformationRequest;
 import com.github.kosmateus.shinden.user.response.Achievements;
+import com.github.kosmateus.shinden.user.response.AnimeListItem;
 import com.github.kosmateus.shinden.user.response.FavouriteTag;
 import com.github.kosmateus.shinden.user.response.Recommendation;
 import com.github.kosmateus.shinden.user.response.Review;
@@ -274,4 +278,43 @@ public interface UserApi {
      * @throws ForbiddenException       if the user is not authorized to import the MAL list.
      */
     UpdateResult importMalList(@Valid @NotNull ImportMalListRequest request);
+
+
+    /**
+     * Retrieves a paginated list of anime items from a user's anime list.
+     * <p>
+     * This method fetches a paginated list of anime items based on the provided request criteria
+     * and pagination information. The resulting list will contain only the anime items that match
+     * the specified filters and sorting parameters.
+     * </p>
+     *
+     * @param request  the {@link AnimeListRequest} containing the criteria for fetching the user's anime list.
+     *                 Must not be null.
+     * @param pageable the {@link Pageable} object containing pagination information, such as page number and size.
+     *                 Must not be null.
+     * @return a {@link Page} of {@link AnimeListItem} containing the user's anime list items matching the criteria.
+     * @throws IllegalArgumentException if the request or pageable is null or contains invalid data.
+     * @throws NotFoundException        if the user is not found.
+     * @throws ForbiddenException       if the user is not authorized to access the anime list.
+     */
+    Page<AnimeListItem> getAnimeList(@Valid @NotNull AnimeListRequest request, @NotNull Pageable pageable);
+
+    /**
+     * Retrieves a list of all anime items from a user's anime list.
+     * <p>
+     * This method fetches all anime items from the user's anime list based on the provided request criteria,
+     * without applying pagination. The resulting list will contain all the anime items that match the specified
+     * filters and sorting parameters.
+     * </p>
+     *
+     * @param request the {@link AnimeListRequest} containing the criteria for fetching the user's anime list.
+     *                Must not be null.
+     * @return a {@link List} of {@link AnimeListItem} containing all the user's anime list items matching the criteria.
+     * @throws IllegalArgumentException if the request is null or contains invalid data.
+     * @throws NotFoundException        if the user is not found.
+     * @throws ForbiddenException       if the user is not authorized to access the anime list.
+     */
+    List<AnimeListItem> getAnimeList(@Valid @NotNull AnimeListRequest request);
+
+
 }

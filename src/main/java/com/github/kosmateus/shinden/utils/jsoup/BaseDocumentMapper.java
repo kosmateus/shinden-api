@@ -4,6 +4,7 @@ import com.github.kosmateus.shinden.auth.PageStructureChangedException;
 import com.github.kosmateus.shinden.exception.ErrorCode;
 import com.google.common.collect.ImmutableMap;
 import lombok.Getter;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -82,16 +83,31 @@ public abstract class BaseDocumentMapper {
 
     /**
      * Creates a supplier for exceptions when the document structure changes.
+     * <p>
+     * This method is designed to handle cases where the structure of a document (such as an HTML page)
+     * changes unexpectedly, causing potential errors in processing. It returns a {@code Supplier}
+     * that provides a {@link PageStructureChangedException} when called.
+     * </p>
      *
-     * @param code the error code used to identify the exception
-     * @return a supplier that provides an exception when called
+     * @param details a {@link Pair} containing an error code and an optional {@link Throwable} cause.
+     *                The left element is the error code used to identify the exception,
+     *                and the right element is the optional cause of the exception.
+     * @return a supplier that provides a {@link PageStructureChangedException} when called
      */
-    protected Supplier<? extends RuntimeException> createExceptionSupplier(String code) {
-        return () -> new PageStructureChangedException(new ExceptionBuilder(code));
+    protected Supplier<? extends RuntimeException> createExceptionSupplier(Pair<String, Throwable> details) {
+        if (details.getRight() != null) {
+            return () -> new PageStructureChangedException(new ExceptionBuilder(details.getLeft()), details.getRight());
+        }
+        return () -> new PageStructureChangedException(new ExceptionBuilder(details.getLeft()));
     }
 
     /**
      * Inner class used to build exceptions with a specific error code.
+     * <p>
+     * The {@code ExceptionBuilder} class helps to construct exceptions with a specific error code.
+     * This is particularly useful for handling dynamic error messages or situations where error codes
+     * need to be standardized and consistent across different parts of the application.
+     * </p>
      */
     @Getter
     protected class ExceptionBuilder implements ErrorCode {
@@ -103,11 +119,17 @@ public abstract class BaseDocumentMapper {
 
         /**
          * Constructs a new {@code ExceptionBuilder} with the specified code.
+         * <p>
+         * The constructor initializes the error code by appending the provided {@code code} to the
+         * mapper code obtained from the enclosing {@code BaseDocumentMapper} class. This approach ensures
+         * that the error code is context-specific and uniquely identifies the exception's source.
+         * </p>
          *
-         * @param code the error code
+         * @param code the error code to be used in the exception
          */
         protected ExceptionBuilder(String code) {
             this.code = BaseDocumentMapper.this.getMapperCode() + "." + code;
         }
     }
+
 }

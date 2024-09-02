@@ -14,7 +14,7 @@ import java.util.stream.Stream;
  * <p>
  * The {@code FormParamUtils} class provides static utility methods to merge form parameters
  * with control over null handling, as well as to create type mappings for {@code FormParam} values.
- * This class is not meant to be instantiated and all methods are statically accessible.
+ * This class is designed as a utility helper and should not be instantiated. All methods are statically accessible.
  * </p>
  *
  * @version 1.0.0
@@ -24,6 +24,11 @@ public class FormParamUtils {
 
     /**
      * Merges the current value with a new value, with an option to accept or reject null fields.
+     * <p>
+     * This method allows you to merge two values, deciding whether a {@code null} value should replace
+     * the existing value or not. It is useful in scenarios where default values should be preserved,
+     * or updates are conditional based on the presence of new data.
+     * </p>
      *
      * @param <T>              the type of the values being merged
      * @param currentValue     the current value that may be retained if the new value is {@code null}
@@ -41,7 +46,8 @@ public class FormParamUtils {
      * Merges the current value with a new value, rejecting null fields by default.
      * <p>
      * This method is a convenience overload of {@link #merge(Object, Object, boolean)}
-     * with {@code acceptNullFields} set to {@code false}.
+     * with {@code acceptNullFields} set to {@code false}. It provides a straightforward
+     * way to merge values while ensuring that null values do not overwrite existing data.
      * </p>
      *
      * @param <T>          the type of the values being merged
@@ -61,6 +67,11 @@ public class FormParamUtils {
      * instance from the provided array of possible values. If the input string does not match any
      * known value, an {@link IllegalArgumentException} is thrown.
      * </p>
+     * <p>
+     * The created mapping function is particularly useful in deserialization or parsing scenarios
+     * where you need to convert a string representation back into a strongly-typed {@code FormParam}
+     * instance.
+     * </p>
      *
      * @param <T>    the type of {@link FormParam} subclass
      * @param clazz  the {@link Class} of the {@link FormParam} subclass
@@ -72,7 +83,7 @@ public class FormParamUtils {
         return new AbstractMap.SimpleEntry<>(
                 clazz,
                 (value) -> Stream.of(values)
-                        .filter(v -> v.getValue().equals(value))
+                        .filter(v -> v.getFormValue().equals(value))
                         .findFirst()
                         .orElseThrow(() -> new IllegalArgumentException("Unknown value: " + value))
         );

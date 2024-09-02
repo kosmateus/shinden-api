@@ -40,7 +40,7 @@ public enum SliderPosition implements Translatable, FormParam {
      */
     TWELVE_ITEMS("50", "user.settings.edit.slider-position.twelve-items");
 
-    private final String value;
+    private final String formValue;
     private final String translationKey;
 
     /**
@@ -53,7 +53,7 @@ public enum SliderPosition implements Translatable, FormParam {
      * @return the form parameter name, "steps".
      */
     @Override
-    public String getParameter() {
+    public String getFormParameter() {
         return "steps";
     }
 }

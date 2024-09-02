@@ -50,7 +50,7 @@ public enum ChapterLanguage implements Translatable, FormParam {
      */
     KOREAN("kr", "user.settings.edit.subtitle-lang.kr");
 
-    private final String value;
+    private final String formValue;
     private final String translationKey;
 
     /**
@@ -63,7 +63,7 @@ public enum ChapterLanguage implements Translatable, FormParam {
      * @return the form parameter name, "chap_lang[]".
      */
     @Override
-    public String getParameter() {
+    public String getFormParameter() {
         return "chap_lang[]";
     }
 }

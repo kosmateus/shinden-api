@@ -50,7 +50,7 @@ public enum ChapterStatus implements Translatable, FormParam {
      */
     PLAN("plan", "user.settings.edit.chapter-status.plan");
 
-    private final String value;
+    private final String formValue;
     private final String translationKey;
 
     /**
@@ -63,7 +63,7 @@ public enum ChapterStatus implements Translatable, FormParam {
      * @return the form parameter name, "chap_status[]".
      */
     @Override
-    public String getParameter() {
+    public String getFormParameter() {
         return "chap_status[]";
     }
 }

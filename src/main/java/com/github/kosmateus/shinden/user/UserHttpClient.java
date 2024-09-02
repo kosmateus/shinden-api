@@ -1,16 +1,27 @@
 package com.github.kosmateus.shinden.user;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.github.kosmateus.shinden.common.request.Pageable;
 import com.github.kosmateus.shinden.http.request.FileResource;
 import com.github.kosmateus.shinden.http.request.HttpRequest;
 import com.github.kosmateus.shinden.http.response.ResponseHandler;
 import com.github.kosmateus.shinden.http.rest.HttpClient;
+import com.github.kosmateus.shinden.user.common.enums.UserTitleStatus;
+import com.github.kosmateus.shinden.user.request.AnimeListRequest;
+import com.github.kosmateus.shinden.user.response.AnimeListItem;
+import com.github.kosmateus.shinden.user.response.ListResponse;
+import com.github.kosmateus.shinden.utils.PathParamsBuilder;
+import com.github.kosmateus.shinden.utils.SortParamsBuilder;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import lombok.RequiredArgsConstructor;
 
+import javax.annotation.Nullable;
 import java.util.Map;
+import java.util.Optional;
 
 import static com.github.kosmateus.shinden.constants.ShindenConstants.SHINDEN_URL;
+import static com.github.kosmateus.shinden.constants.ShindenConstants.SHINDEN_USER_LIST_URL;
 
 /**
  * Client for handling user-related HTTP requests.
@@ -102,4 +113,48 @@ class UserHttpClient {
                 .path("/user/" + userId + "/import_mal/1")
                 .build(), String.class);
     }
+
+    /**
+     * Retrieves the anime list for a user based on the provided request and optional pagination.
+     * <p>
+     * This method fetches a list of anime items from a user's anime list according to the specified
+     * request criteria and pagination details. If no pagination is provided, all matching anime items
+     * are returned.
+     * </p>
+     *
+     * @param request  the {@link AnimeListRequest} containing the criteria for fetching the user's anime list. Must not be null.
+     * @param pageable an optional {@link Pageable} object containing pagination information, such as page number and size. Can be null.
+     * @return a {@link ResponseHandler} containing a {@link ListResponse} of {@link AnimeListItem} representing the user's anime list.
+     */
+    ResponseHandler<ListResponse<AnimeListItem>> getAnimeList(AnimeListRequest request, @Nullable Pageable pageable) {
+        String path = "/api/userlist/" + request.getUserId() + "/anime" + Optional.ofNullable(request.getStatus())
+                .map(UserTitleStatus::getPathValue)
+                .map(status -> "/" + status)
+                .orElse("");
+
+        if (pageable == null) {
+            return httpClient.get(HttpRequest.builder()
+                    .target(SHINDEN_USER_LIST_URL)
+                    .path(path)
+                    .pathParams(PathParamsBuilder.build(request.getStatus()))
+                    .queryParams(ImmutableMap.of(
+                            "limit", "100000"
+                    ))
+                    .build(), new TypeReference<ListResponse<AnimeListItem>>() {
+            });
+        }
+
+        return httpClient.get(HttpRequest.builder()
+                .target(SHINDEN_USER_LIST_URL)
+                .path(path)
+                .pathParams(PathParamsBuilder.build(request.getStatus()))
+                .queryParams(ImmutableMap.of(
+                        "limit", String.valueOf(pageable.getPageSize()),
+                        "offset", String.valueOf(pageable.getOffset()),
+                        "sort", SortParamsBuilder.build(pageable)
+                ))
+                .build(), new TypeReference<ListResponse<AnimeListItem>>() {
+        });
+    }
+
 }

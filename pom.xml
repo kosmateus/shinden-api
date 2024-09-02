@@ -92,6 +92,11 @@
             <groupId>org.yaml</groupId>
             <version>2.0</version>
         </dependency>
+        <dependency>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <version>2.17.2</version>
+        </dependency>
 
         <!--TEST-->
         <dependency>

@@ -56,7 +56,7 @@ public enum PageTheme implements Translatable, FormParam {
      */
     CHRISTMAS_NO_SNOW("6", "user.settings.edit.page-theme.christmas-no-snow");
 
-    private final String value;
+    private final String formValue;
     private final String translationKey;
 
     /**
@@ -69,7 +69,7 @@ public enum PageTheme implements Translatable, FormParam {
      * @return the form parameter name, "skin_id".
      */
     @Override
-    public String getParameter() {
+    public String getFormParameter() {
         return "skin_id";
     }
 }

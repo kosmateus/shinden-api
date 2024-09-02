@@ -36,7 +36,7 @@ public enum UserGender implements FormParam, Translatable {
      */
     NONE("?", "user.information.edit.gender.none");
 
-    private final String value;
+    private final String formValue;
     private final String translationKey;
 
     /**
@@ -48,7 +48,7 @@ public enum UserGender implements FormParam, Translatable {
      * @return the query parameter name, "gender".
      */
     @Override
-    public String getParameter() {
+    public String getFormParameter() {
         return "gender";
     }
 }

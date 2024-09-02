@@ -30,7 +30,7 @@ public enum SkipFillers implements Translatable, FormParam {
      */
     YES("1", "user.settings.edit.skip-fillers.yes");
 
-    private final String value;
+    private final String formValue;
     private final String translationKey;
 
     /**
@@ -43,7 +43,7 @@ public enum SkipFillers implements Translatable, FormParam {
      * @return the form parameter name, "skip_filers".
      */
     @Override
-    public String getParameter() {
+    public String getFormParameter() {
         return "skip_filers";
     }
 }

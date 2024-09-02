@@ -56,7 +56,7 @@ public class DocumentMapperEngine {
             LocalDate.class, s -> LocalDate.parse(s, dateTimeFormatters.getRight()),
             LocalDateTime.class, s -> LocalDateTime.parse(s, dateTimeFormatters.getLeft())
     );
-    private final Function<String, Supplier<? extends RuntimeException>> exceptionSupplier;
+    private final Function<Pair<String, Throwable>, Supplier<? extends RuntimeException>> exceptionSupplier;
     private final DocumentTextMapper textMapper;
     private final DocumentAttrMapper attrMapper;
     private final DocumentOwnTextMapper ownMapper;
@@ -70,7 +70,7 @@ public class DocumentMapperEngine {
      * @param exceptionSupplier    function to supply exceptions when a mapping error occurs
      */
     public DocumentMapperEngine(String localDateTimePattern, String localDatePattern,
-                                Function<String, Supplier<? extends RuntimeException>> exceptionSupplier) {
+                                Function<Pair<String, Throwable>, Supplier<? extends RuntimeException>> exceptionSupplier) {
         Map<Class<?>, Function<String, ?>> typeConverters = TYPE_MAPPERS.apply(
                 Pair.of(DateTimeFormatter.ofPattern(localDateTimePattern),
                         DateTimeFormatter.ofPattern(localDatePattern)));
@@ -91,7 +91,7 @@ public class DocumentMapperEngine {
      */
     public DocumentMapperEngine(String localDateTimePattern, String localDatePattern,
                                 Map<Class<?>, Function<String, ?>> typeMappers,
-                                Function<String, Supplier<? extends RuntimeException>> exceptionSupplier) {
+                                Function<Pair<String, Throwable>, Supplier<? extends RuntimeException>> exceptionSupplier) {
 
         Map<Class<?>, Function<String, ?>> typeConverters = new HashMap<>();
         typeConverters.putAll(TYPE_MAPPERS.apply(
@@ -194,7 +194,7 @@ public class DocumentMapperEngine {
             return new Optional<>(element.attr(attr),
                     attribute ->
                             patternMatcher != null
-                                    ? new Optional<>(patternMatcher.getOrThrow(attribute.trim(), exceptionSupplier.apply("pattern." + patternMatcher.getPattern() + ".group." + patternMatcher.getGroup())),
+                                    ? new Optional<>(patternMatcher.getOrThrow(attribute.trim(), exceptionSupplier.apply(Pair.of("pattern." + patternMatcher.getPattern() + ".group." + patternMatcher.getGroup(), null))),
                                     foundText -> mapper.apply(replace(replacements, foundText).trim())
                             )
                                     : mapper.apply(replace(replacements, attribute).trim()));
@@ -253,7 +253,7 @@ public class DocumentMapperEngine {
                               String text) {
             if (patternMatcher != null) {
                 return (T) new Optional<>(
-                        patternMatcher.getOrThrow(text.trim(), exceptionSupplier.apply("pattern." + patternMatcher.getPattern() + ".group." + patternMatcher.getGroup())),
+                        patternMatcher.getOrThrow(text.trim(), exceptionSupplier.apply(Pair.of("pattern." + patternMatcher.getPattern() + ".group." + patternMatcher.getGroup(), null))),
                         foundText -> mapper.apply(replace(replacements, foundText).trim())
                 );
             } else {
@@ -308,7 +308,7 @@ public class DocumentMapperEngine {
                         .map(String::trim)
                         .collect(Collectors.joining(System.lineSeparator()));
             }
-            return element.text();
+            return element.ownText();
         }
 
 
@@ -316,7 +316,7 @@ public class DocumentMapperEngine {
                               String text) {
             if (patternMatcher != null) {
                 return (T) new Optional<>(
-                        patternMatcher.getOrThrow(text.trim(), exceptionSupplier.apply("pattern." + patternMatcher.getPattern() + ".group." + patternMatcher.getGroup())),
+                        patternMatcher.getOrThrow(text.trim(), exceptionSupplier.apply(Pair.of("pattern." + patternMatcher.getPattern() + ".group." + patternMatcher.getGroup(), null))),
                         foundText -> mapper.apply(replace(replacements, foundText).trim())
                 );
             } else {
@@ -363,7 +363,7 @@ public class DocumentMapperEngine {
                               String text) {
             if (patternMatcher != null) {
                 return (T) new Optional<>(
-                        patternMatcher.getOrThrow(text.trim(), exceptionSupplier.apply("pattern." + patternMatcher.getPattern() + ".group." + patternMatcher.getGroup())),
+                        patternMatcher.getOrThrow(text.trim(), exceptionSupplier.apply(Pair.of("pattern." + patternMatcher.getPattern() + ".group." + patternMatcher.getGroup(), null))),
                         foundText -> mapper.apply(replace(replacements, foundText).trim())
                 );
             } else {
@@ -1071,10 +1071,10 @@ public class DocumentMapperEngine {
          * @param replacement the replacement text to substitute for the matched text
          * @return a {@link TextReplaceStep} instance for further text replacement and mapping operations
          */
-        public TextReplaceStep replace(String regex, String replacement) {
+        public OwnTextReplaceStep replace(String regex, String replacement) {
             List<Replacement> replacements = new ArrayList<>();
             replacements.add(new Replacement(regex, replacement));
-            return new TextReplaceStep(document, select, null, keepNewLines, replacements, index);
+            return new OwnTextReplaceStep(document, select, null, keepNewLines, replacements, index);
         }
 
         /**
@@ -1511,7 +1511,6 @@ public class DocumentMapperEngine {
         }
     }
 
-
     /**
      * Represents a step in the mapping process that handles the replacement of own text content within an HTML element.
      * <p>
@@ -1695,15 +1694,20 @@ public class DocumentMapperEngine {
          */
         public O orThrowWithCode(String errorCode) {
             if (value == null) {
-                throw DocumentMapperEngine.this.exceptionSupplier.apply(errorCode).get();
+                throw DocumentMapperEngine.this.exceptionSupplier.apply(Pair.of(errorCode, null)).get();
             }
 
-            O result = mapper.apply(value);
-            if (result instanceof Optional) {
-                return (O) ((Optional<?, ?>) result).orThrowWithCode(errorCode);
+            try {
+                O result = mapper.apply(value);
+                if (result instanceof Optional) {
+                    return (O) ((Optional<?, ?>) result).orThrowWithCode(errorCode);
+                }
+
+                return result;
+            } catch (Exception e) {
+                throw DocumentMapperEngine.this.exceptionSupplier.apply(Pair.of(errorCode, e)).get();
             }
 
-            return result;
         }
     }
 

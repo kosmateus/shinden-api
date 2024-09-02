@@ -1,6 +1,9 @@
 package com.github.kosmateus.shinden.user;
 
 import com.github.kosmateus.shinden.BaseTest;
+import com.github.kosmateus.shinden.common.request.Pageable;
+import com.github.kosmateus.shinden.common.request.Sort;
+import com.github.kosmateus.shinden.common.response.Page;
 import com.github.kosmateus.shinden.common.response.UpdateResult;
 import com.github.kosmateus.shinden.http.request.LocalFileResource;
 import com.github.kosmateus.shinden.i18n.Translatable;
@@ -8,7 +11,6 @@ import com.github.kosmateus.shinden.user.common.AnimeListSettings;
 import com.github.kosmateus.shinden.user.common.MangaListSettings;
 import com.github.kosmateus.shinden.user.common.PageSettings;
 import com.github.kosmateus.shinden.user.common.ReadTimeSettings;
-import com.github.kosmateus.shinden.user.common.enums.AnimeStatus;
 import com.github.kosmateus.shinden.user.common.enums.ChapterLanguage;
 import com.github.kosmateus.shinden.user.common.enums.ChapterStatus;
 import com.github.kosmateus.shinden.user.common.enums.PageMainMenu;
@@ -18,8 +20,12 @@ import com.github.kosmateus.shinden.user.common.enums.SkipFillers;
 import com.github.kosmateus.shinden.user.common.enums.SliderPosition;
 import com.github.kosmateus.shinden.user.common.enums.StatusAutoChange;
 import com.github.kosmateus.shinden.user.common.enums.SubtitlesLanguage;
+import com.github.kosmateus.shinden.user.common.enums.TitleStatus;
+import com.github.kosmateus.shinden.user.common.enums.TitleType;
 import com.github.kosmateus.shinden.user.common.enums.UserGender;
+import com.github.kosmateus.shinden.user.common.enums.UserTitleStatus;
 import com.github.kosmateus.shinden.user.request.AddToListSettingsRequest;
+import com.github.kosmateus.shinden.user.request.AnimeListRequest;
 import com.github.kosmateus.shinden.user.request.AvatarFileUpdateRequest;
 import com.github.kosmateus.shinden.user.request.AvatarUrlUpdateRequest;
 import com.github.kosmateus.shinden.user.request.BaseSettingsRequest;
@@ -34,6 +40,7 @@ import com.github.kosmateus.shinden.user.request.UpdatePasswordRequest;
 import com.github.kosmateus.shinden.user.request.UserInformationRequest;
 import com.github.kosmateus.shinden.user.response.Achievement;
 import com.github.kosmateus.shinden.user.response.Achievements;
+import com.github.kosmateus.shinden.user.response.AnimeListItem;
 import com.github.kosmateus.shinden.user.response.Comment;
 import com.github.kosmateus.shinden.user.response.EntityOverview;
 import com.github.kosmateus.shinden.user.response.FavouriteMediaItem;
@@ -71,6 +78,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static com.github.kosmateus.shinden.common.request.Sort.Direction.ASC;
 import static com.github.kosmateus.shinden.common.response.Result.SUCCESS;
 import static com.github.kosmateus.shinden.i18n.TranslationUtil.getTranslation;
 import static com.github.kosmateus.shinden.user.UserApiTest.UserAsserts.IMAGE_EXTENSIONS;
@@ -79,10 +87,15 @@ import static com.github.kosmateus.shinden.user.UserApiTest.UserAsserts.PAST_DAT
 import static com.github.kosmateus.shinden.user.UserApiTest.UserAsserts.RANK_PREASANT;
 import static com.github.kosmateus.shinden.user.UserApiTest.UserAsserts.RANK_USER;
 import static com.github.kosmateus.shinden.user.UserApiTest.UserAsserts.assertAchievements;
+import static com.github.kosmateus.shinden.user.UserApiTest.UserAsserts.assertAnimeList;
 import static com.github.kosmateus.shinden.user.UserApiTest.UserAsserts.assertComments;
 import static com.github.kosmateus.shinden.user.UserApiTest.UserAsserts.assertFavouriteEntities;
 import static com.github.kosmateus.shinden.user.UserApiTest.UserAsserts.assertFavouriteMediaItems;
 import static com.github.kosmateus.shinden.user.UserApiTest.UserAsserts.assertStatistics;
+import static com.github.kosmateus.shinden.user.request.AnimeListRequest.SortOrder.byProgress;
+import static com.github.kosmateus.shinden.user.request.AnimeListRequest.SortOrder.byRate;
+import static com.github.kosmateus.shinden.user.request.AnimeListRequest.SortOrder.byTitle;
+import static com.github.kosmateus.shinden.user.request.AnimeListRequest.SortOrder.byType;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
@@ -286,7 +299,7 @@ class UserApiTest extends BaseTest {
             userApi.updateListsSettings(ListsSettingsRequest.builder()
                     .userId(getLoggedInUserId())
                     .animeListSettings(AnimeListSettings.builder()
-                            .animeWatchStatus(Collections.singletonList(AnimeStatus.IN_PROGRESS))
+                            .animeWatchStatus(Collections.singletonList(UserTitleStatus.IN_PROGRESS))
                             .subtitlesLanguages(Collections.singletonList(SubtitlesLanguage.NONE))
                             .skipFillers(SkipFillers.NO)
                             .statusAutoChange(StatusAutoChange.NO)
@@ -337,7 +350,7 @@ class UserApiTest extends BaseTest {
                     .userId(getLoggedInUserId())
                     .animeListSettings(AnimeListSettings.builder()
                             .subtitlesLanguages(Arrays.asList(SubtitlesLanguage.values()))
-                            .animeWatchStatus(Arrays.asList(AnimeStatus.values()))
+                            .animeWatchStatus(Arrays.asList(UserTitleStatus.values()))
                             .skipFillers(SkipFillers.YES)
                             .statusAutoChange(StatusAutoChange.YES)
                             .build())
@@ -355,7 +368,7 @@ class UserApiTest extends BaseTest {
             assertThat(settings).isNotNull();
             assertThat(settings.getAnimeListSettings()).isNotNull();
             assertThat(settings.getAnimeListSettings().getSubtitlesLanguages()).containsExactly(SubtitlesLanguage.values());
-            assertThat(settings.getAnimeListSettings().getAnimeWatchStatus()).containsExactly(AnimeStatus.values());
+            assertThat(settings.getAnimeListSettings().getAnimeWatchStatus()).containsExactly(UserTitleStatus.values());
             assertThat(settings.getAnimeListSettings().getSkipFillers()).isEqualTo(SkipFillers.YES);
             assertThat(settings.getAnimeListSettings().getStatusAutoChange()).isEqualTo(StatusAutoChange.YES);
             assertThat(settings.getMangaListSettings()).isNotNull();
@@ -398,7 +411,7 @@ class UserApiTest extends BaseTest {
             assertThat(settings.getReadTimeSettings().getVisualNovelChapterReadTime()).isEqualTo(5);
             assertThat(settings.getAnimeListSettings()).isNotNull();
             assertThat(settings.getAnimeListSettings().getSubtitlesLanguages()).containsExactly(SubtitlesLanguage.NONE);
-            assertThat(settings.getAnimeListSettings().getAnimeWatchStatus()).containsExactly(AnimeStatus.IN_PROGRESS);
+            assertThat(settings.getAnimeListSettings().getAnimeWatchStatus()).containsExactly(UserTitleStatus.IN_PROGRESS);
             assertThat(settings.getAnimeListSettings().getSkipFillers()).isEqualTo(SkipFillers.NO);
             assertThat(settings.getAnimeListSettings().getStatusAutoChange()).isEqualTo(StatusAutoChange.NO);
             assertThat(settings.getMangaListSettings()).isNotNull();
@@ -514,7 +527,7 @@ class UserApiTest extends BaseTest {
         void shouldProperlyTranslateAllTranslatableEnums() {
             assertTranslations(ImportType.values());
             assertTranslations(ChapterLanguage.values());
-            assertTranslations(AnimeStatus.values());
+            assertTranslations(UserTitleStatus.values());
             assertTranslations(SubtitlesLanguage.values());
             assertTranslations(SkipFillers.values());
             assertTranslations(ChapterStatus.values());
@@ -522,6 +535,8 @@ class UserApiTest extends BaseTest {
             assertTranslations(RateType.values());
             assertTranslations(TagType.values());
             assertTranslations(StatusAutoChange.values());
+            assertTranslations(TitleStatus.values());
+            assertTranslations(TitleType.values());
         }
 
         private <T extends Enum<T> & Translatable> void assertTranslations(T[] values) {
@@ -537,6 +552,122 @@ class UserApiTest extends BaseTest {
                         .isNotEqualTo(value.getTranslationKey());
             }
         }
+    }
+
+    @Nested
+    @DisplayName("User anime list tests")
+    class UserAnimeListTest {
+
+        @Test
+        @DisplayName("Should successfully get all user anime list")
+        void shouldSuccessfullyGetUserAnimeList() {
+            login();
+            List<AnimeListItem> animeList = userApi.getAnimeList(AnimeListRequest.builder().userId(getLoggedInUserId())
+                    .build());
+
+            assertAnimeList(animeList);
+        }
+
+        @Test
+        @DisplayName("Should successfully get in progress user anime list")
+        void shouldSuccessfullyGetInProgressUserAnimeList() {
+            login();
+            List<AnimeListItem> animeList = userApi.getAnimeList(AnimeListRequest.builder().userId(getLoggedInUserId())
+                    .status(UserTitleStatus.IN_PROGRESS)
+                    .build());
+
+            assertAnimeList(animeList);
+        }
+
+        @Test
+        @DisplayName("Should successfully get completed user anime list")
+        void shouldSuccessfullyGetCompletedUserAnimeList() {
+            login();
+            List<AnimeListItem> animeList = userApi.getAnimeList(AnimeListRequest.builder().userId(getLoggedInUserId())
+                    .status(UserTitleStatus.COMPLETED)
+                    .build());
+
+            assertAnimeList(animeList);
+        }
+
+        @Test
+        @DisplayName("Should successfully get hold user anime list")
+        void shouldSuccessfullyGetHoldUserAnimeList() {
+            login();
+            List<AnimeListItem> animeList = userApi.getAnimeList(AnimeListRequest.builder().userId(getLoggedInUserId())
+                    .status(UserTitleStatus.HOLD)
+                    .build());
+
+            assertAnimeList(animeList, true);
+        }
+
+        @Test
+        @DisplayName("Should successfully get dropped user anime list")
+        void shouldSuccessfullyGetDroppedUserAnimeList() {
+            login();
+            List<AnimeListItem> animeList = userApi.getAnimeList(AnimeListRequest.builder().userId(getLoggedInUserId())
+                    .status(UserTitleStatus.DROPPED)
+                    .build());
+
+            assertAnimeList(animeList, true);
+        }
+
+        @Test
+        @DisplayName("Should successfully get planned user anime list")
+        void shouldSuccessfullyGetPlannedUserAnimeList() {
+            login();
+            List<AnimeListItem> animeList = userApi.getAnimeList(AnimeListRequest.builder().userId(getLoggedInUserId())
+                    .status(UserTitleStatus.PLAN)
+                    .build());
+
+            assertAnimeList(animeList, true);
+        }
+
+        @Test
+        @DisplayName("Should successfully get pageable anime list sorted by title")
+        void shouldSuccessfullyGetPageableAnimeList() {
+            login();
+            Page<AnimeListItem> animeListPage = userApi.getAnimeList(AnimeListRequest.builder().userId(getLoggedInUserId())
+                    .build(), Pageable.of(1, 20, Sort.by(byTitle(ASC))));
+            List<AnimeListItem> content = animeListPage.getContent();
+            assertAnimeList(content, true);
+            assertThat(content).hasSize(20);
+        }
+
+        @Test
+        @DisplayName("Should successfully get pageable anime list sorted by rate")
+        void shouldSuccessfullyGetPageableAnimeListSortedByRate() {
+            login();
+            Page<AnimeListItem> animeListPage = userApi.getAnimeList(AnimeListRequest.builder().userId(getLoggedInUserId())
+                    .build(), Pageable.of(1, 20, Sort.by(byRate(ASC))));
+            List<AnimeListItem> content = animeListPage.getContent();
+            assertAnimeList(content, true);
+            assertThat(content).hasSize(20);
+        }
+
+        @Test
+        @DisplayName("Should successfully get pageable anime list sorted by progress")
+        void shouldSuccessfullyGetPageableAnimeListSortedByProgress() {
+            login();
+            Page<AnimeListItem> animeListPage = userApi.getAnimeList(AnimeListRequest.builder().userId(getLoggedInUserId())
+                    .build(), Pageable.of(1, 20, Sort.by(byProgress(ASC))));
+            List<AnimeListItem> content = animeListPage.getContent();
+            assertAnimeList(content, true);
+            assertThat(content).hasSize(20);
+        }
+
+        @Test
+        @DisplayName("Should successfully get pageable anime list sorted by type")
+        void shouldSuccessfullyGetPageableAnimeListSortedByType() {
+            login();
+            Page<AnimeListItem> animeListPage = userApi.getAnimeList(AnimeListRequest.builder().userId(getLoggedInUserId())
+                    .build(), Pageable.of(1, 20, Sort.by(byType(ASC))));
+            List<AnimeListItem> content = animeListPage.getContent();
+            assertAnimeList(content, true);
+            assertThat(content).hasSize(20);
+        }
+
+
     }
 
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -575,7 +706,7 @@ class UserApiTest extends BaseTest {
                     assertThat(favouritePerson.getFirstName()).isNotBlank();
                     assertThat(favouritePerson.getMediaId()).isNotNull();
                     assertThat(favouritePerson.getMediaTitle()).isNotBlank();
-                    assertThat(favouritePerson.getMediaUrlType()).isNotBlank();
+                    assertThat(favouritePerson.getMediaUrlType()).isNotNull();
                     assertThat(IMAGE_EXTENSIONS).anySatisfy(
                             extension -> assertThat(favouritePerson.getImageUrl()).contains(extension));
                 });
@@ -587,7 +718,7 @@ class UserApiTest extends BaseTest {
                 favouriteMediaItems.forEach(favouriteMediaItem -> {
                     assertThat(favouriteMediaItem.getId()).isNotNull();
                     assertThat(favouriteMediaItem.getTitle()).isNotBlank();
-                    assertThat(favouriteMediaItem.getType()).isNotBlank();
+                    assertThat(favouriteMediaItem.getType()).isNotNull();
                     assertThat(favouriteMediaItem.getYear()).isNotNull();
                     assertThat(IMAGE_EXTENSIONS).anySatisfy(
                             extension -> assertThat(favouriteMediaItem.getImageUrl()).contains(extension));
@@ -638,6 +769,83 @@ class UserApiTest extends BaseTest {
 
             assertThat(hasPreviousTrue).isTrue();
             assertThat(hasPreviousFalse).isTrue();
+        }
+
+        static void assertAnimeList(List<AnimeListItem> animeList) {
+            assertAnimeList(animeList, false);
+        }
+
+        static void assertAnimeList(List<AnimeListItem> animeList, boolean basicValidation) {
+            assertThat(animeList).isNotNull();
+            assertThat(animeList).isNotEmpty();
+
+            boolean userTotalRatingPresent = false;
+            boolean userStoryRatingPresent = false;
+            boolean userMusicRatingPresent = false;
+            boolean userCharactersRatingPresent = false;
+            boolean userGraphicRatingPresent = false;
+            boolean userFavoritePresent = false;
+            boolean dmcaPresent = false;
+            boolean startDatePresent = false;
+            boolean endDatePresent = false;
+            boolean descriptionEnPresent = false;
+            boolean descriptionPresent = false;
+            boolean imagePresent = false;
+            boolean totalEpisodesPresent = false;
+            boolean charactersRatingPresent = false;
+            boolean storyRatingPresent = false;
+            boolean musicRatingPresent = false;
+            boolean graphicRatingPresent = false;
+            for (AnimeListItem animeListItem : animeList) {
+                assertThat(animeListItem.getId()).isNotNull();
+                assertThat(animeListItem.getTitle()).isNotBlank();
+                assertThat(animeListItem.getWatchedEpisodes()).isNotNull();
+                assertThat(animeListItem.getType()).isNotNull();
+                assertThat(animeListItem.getStatus()).isNotNull();
+                assertThat(animeListItem.getPremierePrecision()).isNotNull();
+                assertThat(animeListItem.getFinishPrecision()).isNotNull();
+                assertThat(animeListItem.getTitleStatus()).isNotNull();
+                assertThat(animeListItem.getMpaa()).isNotNull();
+
+                if (animeListItem.getUserTotalRating() != null) userTotalRatingPresent = true;
+                if (animeListItem.getUserStoryRating() != null) userStoryRatingPresent = true;
+                if (animeListItem.getUserMusicRating() != null) userMusicRatingPresent = true;
+                if (animeListItem.getUserCharactersRating() != null) userCharactersRatingPresent = true;
+                if (animeListItem.getUserGraphicRating() != null) userGraphicRatingPresent = true;
+                if (animeListItem.isFavourite()) userFavoritePresent = true;
+                if (animeListItem.isDmca()) dmcaPresent = true;
+                if (animeListItem.getStartDate() != null) startDatePresent = true;
+                if (animeListItem.getEndDate() != null) endDatePresent = true;
+                if (StringUtils.isNotBlank(animeListItem.getDescriptionEn())) descriptionEnPresent = true;
+                if (StringUtils.isNotBlank(animeListItem.getDescription())) descriptionPresent = true;
+                if (StringUtils.isNotBlank(animeListItem.getImage())) imagePresent = true;
+                if (animeListItem.getTotalEpisodes() != null) totalEpisodesPresent = true;
+                if (animeListItem.getCharactersRating() != null) charactersRatingPresent = true;
+                if (animeListItem.getStoryRating() != null) storyRatingPresent = true;
+                if (animeListItem.getMusicRating() != null) musicRatingPresent = true;
+                if (animeListItem.getGraphicRating() != null) graphicRatingPresent = true;
+
+            }
+
+            if (!basicValidation) {
+                assertThat(userTotalRatingPresent).isTrue();
+                assertThat(userStoryRatingPresent).isTrue();
+                assertThat(userMusicRatingPresent).isTrue();
+                assertThat(userCharactersRatingPresent).isTrue();
+                assertThat(userGraphicRatingPresent).isTrue();
+                assertThat(userFavoritePresent).isTrue();
+                assertThat(dmcaPresent).isTrue();
+                assertThat(startDatePresent).isTrue();
+                assertThat(endDatePresent).isTrue();
+                assertThat(descriptionEnPresent).isTrue();
+                assertThat(descriptionPresent).isTrue();
+                assertThat(imagePresent).isTrue();
+                assertThat(totalEpisodesPresent).isTrue();
+                assertThat(charactersRatingPresent).isTrue();
+                assertThat(storyRatingPresent).isTrue();
+                assertThat(musicRatingPresent).isTrue();
+                assertThat(graphicRatingPresent).isTrue();
+            }
         }
     }
 

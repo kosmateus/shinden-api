@@ -5,7 +5,6 @@ import com.github.kosmateus.shinden.user.common.AnimeListSettings;
 import com.github.kosmateus.shinden.user.common.MangaListSettings;
 import com.github.kosmateus.shinden.user.common.PageSettings;
 import com.github.kosmateus.shinden.user.common.ReadTimeSettings;
-import com.github.kosmateus.shinden.user.common.enums.AnimeStatus;
 import com.github.kosmateus.shinden.user.common.enums.ChapterLanguage;
 import com.github.kosmateus.shinden.user.common.enums.ChapterStatus;
 import com.github.kosmateus.shinden.user.common.enums.PageMainMenu;
@@ -15,6 +14,7 @@ import com.github.kosmateus.shinden.user.common.enums.SkipFillers;
 import com.github.kosmateus.shinden.user.common.enums.SliderPosition;
 import com.github.kosmateus.shinden.user.common.enums.StatusAutoChange;
 import com.github.kosmateus.shinden.user.common.enums.SubtitlesLanguage;
+import com.github.kosmateus.shinden.user.common.enums.UserTitleStatus;
 import com.github.kosmateus.shinden.user.request.AddToListSettingsRequest;
 import com.github.kosmateus.shinden.user.request.BaseSettingsRequest;
 import com.github.kosmateus.shinden.user.request.ListsSettingsRequest;
@@ -72,7 +72,7 @@ public class UserSettingsMapper extends BaseDocumentMapper {
                 createTypeMapping(SliderPosition.class, SliderPosition.values()),
                 createTypeMapping(ShowOption.class, ShowOption.values()),
                 createTypeMapping(SubtitlesLanguage.class, SubtitlesLanguage.values()),
-                createTypeMapping(AnimeStatus.class, AnimeStatus.values()),
+                createTypeMapping(UserTitleStatus.class, UserTitleStatus.values()),
                 createTypeMapping(SkipFillers.class, SkipFillers.values()),
                 createTypeMapping(StatusAutoChange.class, StatusAutoChange.values()),
                 createTypeMapping(ChapterLanguage.class, ChapterLanguage.values()),
@@ -89,22 +89,22 @@ public class UserSettingsMapper extends BaseDocumentMapper {
         AnimeListSettings animeListSettings = currentUserSettings.getAnimeListSettings();
 
         List<KeyVal> subtitlesLanguages = merge(animeListSettings.getSubtitlesLanguages(), request.getAnimeListSettings().getSubtitlesLanguages()).stream()
-                .map(language -> create(language.getParameter(), language.getValue()))
+                .map(language -> create(language.getFormParameter(), language.getFormValue()))
                 .collect(Collectors.toList());
 
         List<KeyVal> animeWatchStatuses = merge(animeListSettings.getAnimeWatchStatus(), request.getAnimeListSettings().getAnimeWatchStatus())
                 .stream()
-                .map(status -> create(status.getParameter(), status.getValue()))
+                .map(status -> create(status.getFormParameter(), status.getFormValue()))
                 .collect(Collectors.toList());
 
         List<KeyVal> chaptersLanguages = merge(mangaListSettings.getChapterLanguages(), request.getMangaListSettings().getChapterLanguages())
                 .stream()
-                .map(language -> create(language.getParameter(), language.getValue()))
+                .map(language -> create(language.getFormParameter(), language.getFormValue()))
                 .collect(Collectors.toList());
 
         List<KeyVal> mangaReadStatuses = merge(mangaListSettings.getMangaReadStatus(), request.getMangaListSettings().getMangaReadStatus())
                 .stream()
-                .map(status -> create(status.getParameter(), status.getValue()))
+                .map(status -> create(status.getFormParameter(), status.getFormValue()))
                 .collect(Collectors.toList());
 
         List<KeyVal> formData = new ArrayList<>();
@@ -115,11 +115,11 @@ public class UserSettingsMapper extends BaseDocumentMapper {
                 .orThrowWithCode("csrf")));
         formData.addAll(subtitlesLanguages);
         formData.addAll(animeWatchStatuses);
-        formData.add(create(SkipFillers.NO.getParameter(), merge(animeListSettings.getSkipFillers(), request.getAnimeListSettings().getSkipFillers()).getValue()));
-        formData.add(create(StatusAutoChange.NO.getParameter(), merge(animeListSettings.getStatusAutoChange(), request.getAnimeListSettings().getStatusAutoChange()).getValue()));
+        formData.add(create(SkipFillers.NO.getFormParameter(), merge(animeListSettings.getSkipFillers(), request.getAnimeListSettings().getSkipFillers()).getFormValue()));
+        formData.add(create(StatusAutoChange.NO.getFormParameter(), merge(animeListSettings.getStatusAutoChange(), request.getAnimeListSettings().getStatusAutoChange()).getFormValue()));
         formData.addAll(chaptersLanguages);
         formData.addAll(mangaReadStatuses);
-        formData.add(create(StatusAutoChange.NO.getParameter(), merge(mangaListSettings.getStatusAutoChange(), request.getMangaListSettings().getStatusAutoChange()).getValue()));
+        formData.add(create(StatusAutoChange.NO.getFormParameter(), merge(mangaListSettings.getStatusAutoChange(), request.getMangaListSettings().getStatusAutoChange()).getFormValue()));
 
         return formData;
     }
@@ -136,8 +136,8 @@ public class UserSettingsMapper extends BaseDocumentMapper {
                         .selectFirst("form.creator-form.box input[name=csrf]")
                         .attr("value")
                         .orThrowWithCode("csrf")),
-                create(SliderPosition.NO_LIMIT.getParameter(), merge(addToListSettings.getSliderPosition(), request.getSliderPosition()).getValue()),
-                create(ShowOption.NO.getParameter(), merge(addToListSettings.getShowAddToList(), request.getShowAddToList()).getValue())
+                create(SliderPosition.NO_LIMIT.getFormParameter(), merge(addToListSettings.getSliderPosition(), request.getSliderPosition()).getFormValue()),
+                create(ShowOption.NO.getFormParameter(), merge(addToListSettings.getShowAddToList(), request.getShowAddToList()).getFormValue())
         );
     }
 
@@ -153,8 +153,8 @@ public class UserSettingsMapper extends BaseDocumentMapper {
                         .selectFirst("form.creator-form input[name=csrf]")
                         .attr("value")
                         .orThrowWithCode("csrf")),
-                create(PageTheme.DEFAULT.getParameter(), merge(pageSettings.getPageTheme(), request.getPageSettings().getPageTheme()).getValue()),
-                create(PageMainMenu.ALL.getParameter(), merge(pageSettings.getPageMainMenu(), request.getPageSettings().getPageMainMenu()).getValue()),
+                create(PageTheme.DEFAULT.getFormParameter(), merge(pageSettings.getPageTheme(), request.getPageSettings().getPageTheme()).getFormValue()),
+                create(PageMainMenu.ALL.getFormParameter(), merge(pageSettings.getPageMainMenu(), request.getPageSettings().getPageMainMenu()).getFormValue()),
                 create("manga_time", merge(readTimeSettings.getMangaChapterReadTime(), request.getReadTimeSettings().getMangaChapterReadTime()).toString()),
                 create("novel_time", merge(readTimeSettings.getVisualNovelChapterReadTime(), request.getReadTimeSettings().getVisualNovelChapterReadTime()).toString())
         );
@@ -193,7 +193,7 @@ public class UserSettingsMapper extends BaseDocumentMapper {
                 )
                 .animeWatchStatus(mapper.with(document)
                         .select("div.push4.col4.box input[type=checkbox][name~=^status\\[\\]][checked=checked]")
-                        .mapTo(item -> mapper.with(item).attr("value").mapTo(AnimeStatus.class).orThrowWithCode("anime-watch-status-single"))
+                        .mapTo(item -> mapper.with(item).attr("value").mapTo(UserTitleStatus.class).orThrowWithCode("anime-watch-status-single"))
                         .orThrowWithCode("anime-watch-status")
                 )
                 .skipFillers(mapper.with(document)

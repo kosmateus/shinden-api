@@ -214,6 +214,10 @@ public final class ResponseHandler<T> {
         return this.httpStatus == httpStatus.value();
     }
 
+    public boolean hasStatus(int status) {
+        return this.httpStatus == status;
+    }
+
     /**
      * Determines if the response contains an entity.
      *

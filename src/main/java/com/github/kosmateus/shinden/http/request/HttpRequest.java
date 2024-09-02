@@ -6,6 +6,8 @@ import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Represents an HTTP request with various configurable parameters.
@@ -106,17 +108,29 @@ public final class HttpRequest {
     /**
      * Constructs the full URL for the HTTP request by combining the target, path,
      * path parameters, and query parameters.
+     * <p>
+     * This method builds the complete URL by appending the path and query parameters
+     * to the base target URL. If any path parameters are specified, they are replaced
+     * in the URL accordingly. If any query parameters are specified, they are appended
+     * to the URL in the standard query string format.
+     * </p>
      *
-     * @return the full URL as a {@link String}.
+     * @return the full URL as a {@link String}
+     * @throws IllegalArgumentException if any required path parameters are missing or not provided
      */
     public String getURL() {
         String path = getTarget() + (StringUtils.isNotBlank(getPath()) ? getPath() : "");
         if (getPathParams() != null && !getPathParams().isEmpty()) {
-            for (Map.Entry<String, String> entry : getPathParams().entrySet()) {
-                path = StringUtils.replace(path, "{" + entry.getKey() + "}", entry.getValue());
+            Map<String, String> filteredPathParams = getPathParams().entrySet().stream()
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            for (Map.Entry<String, String> entry : filteredPathParams.entrySet()) {
+                path = path.replace("{" + entry.getKey() + "}", entry.getValue());
             }
         }
-
+        if (path.contains("{")) {
+            throw new IllegalArgumentException("Missing path parameter value for path: " + path);
+        }
         if (getQueryParams() != null && !getQueryParams().isEmpty()) {
             path += "?" + createQueryParams();
         }
@@ -126,12 +140,18 @@ public final class HttpRequest {
 
     /**
      * Creates the query parameters string for the URL based on the provided map.
+     * <p>
+     * This method generates a properly formatted query string by iterating over
+     * the {@code queryParams} map and concatenating each key-value pair in the standard
+     * `key=value` format, separated by an ampersand (&).
+     * </p>
      *
-     * @return the query parameters as a {@link String}.
+     * @return the query parameters as a {@link String}
      */
     private String createQueryParams() {
         return queryParams.entrySet()
                 .stream()
+                .filter(entry -> StringUtils.isNotBlank(entry.getKey()) && StringUtils.isNotBlank(entry.getValue()))
                 .collect(
                         StringBuilder::new,
                         (stringBuilder, entry) -> {

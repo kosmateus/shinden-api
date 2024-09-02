@@ -30,7 +30,7 @@ public enum StatusAutoChange implements Translatable, FormParam {
      */
     YES("1", "user.settings.edit.status-autochange.yes");
 
-    private final String value;
+    private final String formValue;
     private final String translationKey;
 
     /**
@@ -43,7 +43,7 @@ public enum StatusAutoChange implements Translatable, FormParam {
      * @return the form parameter name, "status_autochange".
      */
     @Override
-    public String getParameter() {
+    public String getFormParameter() {
         return "status_autochange";
     }
 }

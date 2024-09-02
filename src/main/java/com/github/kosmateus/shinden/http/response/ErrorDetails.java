@@ -26,6 +26,7 @@ public final class ErrorDetails {
     private final String code;
     private final String message;
     private final String errorName;
+    private final Throwable cause;
     private final Map<String, String> paramMap;
 
     /**

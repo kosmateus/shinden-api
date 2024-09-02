@@ -1,3 +1,10 @@
+title:
+  type:
+    tv: TV
+    ova: OVA
+    ona: ONA
+    movie: Movie
+    special: Special
 user:
   favorite:
     tags:
@@ -58,13 +65,18 @@ user:
         en: Angielski
         cn: Chiński
         kr: Koreański
-      anime-status:
+      status:
         in-progress: Oglądam
         completed: Obejrzane
         skip: Pomijam
         hold: Wstrzymane
         dropped: Porzucone
         plan: Planuję
+      title-status:
+        proposal: Propozycja
+        airing: Emitowane
+        not-yet-aired: Jeszcze nieemitowane
+        finished: Zakończone
       skip-fillers:
         no: Nie
         yes: Tak

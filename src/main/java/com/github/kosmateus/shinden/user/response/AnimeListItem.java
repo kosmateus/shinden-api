@@ -1,8 +1,21 @@
 package com.github.kosmateus.shinden.user.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.github.kosmateus.shinden.config.ShindenJsonDeserializer.BooleanDeserializer;
+import com.github.kosmateus.shinden.config.ShindenJsonDeserializer.MPAADeserializer;
+import com.github.kosmateus.shinden.config.ShindenJsonDeserializer.TitleStatusDeserializer;
+import com.github.kosmateus.shinden.config.ShindenJsonDeserializer.TitleTypeDeserializer;
+import com.github.kosmateus.shinden.config.ShindenJsonDeserializer.UserTitleStatusDeserializer;
+import com.github.kosmateus.shinden.user.common.enums.MPAA;
+import com.github.kosmateus.shinden.user.common.enums.TitleStatus;
+import com.github.kosmateus.shinden.user.common.enums.TitleType;
+import com.github.kosmateus.shinden.user.common.enums.UserTitleStatus;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
+import lombok.extern.jackson.Jacksonized;
 
 import java.time.LocalDate;
 
@@ -14,95 +27,198 @@ import java.time.LocalDate;
  * image URL, user and total scores, episode counts, type, status, and a brief description.
  * </p>
  *
+ * <p>
+ * Each field is mapped to a corresponding JSON property using Jackson annotations to
+ * facilitate deserialization from a JSON response.
+ * </p>
+ *
  * @version 1.0.0
  */
 @Getter
 @Builder
 @ToString
+@Jacksonized
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class AnimeListItem {
 
     /**
-     * The unique identifier for the anime.
+     * The unique identifier of the anime title.
      */
+    @JsonProperty("titleId")
     private final Long id;
+
+    /**
+     * The user's watch status for the anime.
+     */
+    @JsonProperty("watchStatus")
+    @JsonDeserialize(using = UserTitleStatusDeserializer.class)
+    private final UserTitleStatus status;
+
+    /**
+     * Indicates whether the anime is marked as a favourite by the user.
+     */
+    @JsonProperty("isFavourite")
+    @JsonDeserialize(using = BooleanDeserializer.class)
+    private final boolean isFavourite;
+
+    /**
+     * Indicates whether the anime is subject to DMCA (Digital Millennium Copyright Act) restrictions.
+     */
+    @JsonProperty("dmca")
+    @JsonDeserialize(using = BooleanDeserializer.class)
+    private final boolean dmca;
 
     /**
      * The title of the anime.
      */
+    @JsonProperty("title")
     private final String title;
 
     /**
-     * The URL of the anime's image.
+     * The URL or identifier for the cover image of the anime.
      */
-    private final String imageUrl;
+    @JsonProperty("coverId")
+    private final String image;
 
     /**
-     * The score given by the user to the anime.
+     * The premiere date of the anime.
      */
-    private final Integer userScore;
+    @JsonProperty("premiereDate")
+    private final LocalDate startDate;
 
     /**
-     * The total score of the anime.
+     * The precision level of the premiere date.
      */
-    private final Integer totalScore;
+    @JsonProperty("premierePrecision")
+    private final Integer premierePrecision;
 
     /**
-     * The score for the plot of the anime.
+     * The date when the anime finished airing.
      */
-    private final Integer plotScore;
+    @JsonProperty("finishDate")
+    private final LocalDate endDate;
 
     /**
-     * The score for the music in the anime.
+     * The precision level of the finish date.
      */
-    private final Integer musicScore;
+    @JsonProperty("finishPrecision")
+    private final Integer finishPrecision;
 
     /**
-     * The score for the characters in the anime.
+     * The current status of the anime (e.g., airing, finished).
      */
-    private final Integer charactersScore;
+    @JsonProperty("titleStatus")
+    @JsonDeserialize(using = TitleStatusDeserializer.class)
+    private final TitleStatus titleStatus;
 
     /**
-     * The score for the graphics of the anime.
+     * The MPAA rating of the anime.
      */
-    private final Integer graphicsScore;
+    @JsonProperty("mpaaRating")
+    @JsonDeserialize(using = MPAADeserializer.class)
+    private final MPAA mpaa;
+
+    /**
+     * The average rating for the characters in the anime.
+     */
+    @JsonProperty("summaryRatingTitlecahracters")
+    private final Double charactersRating;
+
+    /**
+     * The total average rating of the anime.
+     */
+    @JsonProperty("summaryRatingTotal")
+    private final Double totalRating;
+
+    /**
+     * The average rating for the story of the anime.
+     */
+    @JsonProperty("summaryRatingStory")
+    private final Double storyRating;
 
     /**
      * The total number of episodes in the anime.
      */
+    @JsonProperty("episodes")
     private final Integer totalEpisodes;
-
-    /**
-     * The number of episodes watched by the user.
-     */
-    private final Integer watchedEpisodes;
 
     /**
      * The type of the anime (e.g., TV, OVA, Movie).
      */
-    private final String type;
+    @JsonProperty("animeType")
+    @JsonDeserialize(using = TitleTypeDeserializer.class)
+    private final TitleType type;
 
     /**
-     * The URL type for the anime, indicating the resource type in the URL.
+     * The average rating for the music in the anime.
      */
-    private final String urlType;
+    @JsonProperty("summaryRatingMusic")
+    private final Double musicRating;
 
     /**
-     * The date when the user started watching the anime.
+     * The average rating for the graphics in the anime.
      */
-    private final LocalDate startDate;
+    @JsonProperty("summaryRatingGraphics")
+    private final Double graphicRating;
 
     /**
-     * The date when the user finished watching the anime.
+     * The number of episodes watched by the user.
      */
-    private final LocalDate endDate;
+    @JsonProperty("watchedEpisodesCnt")
+    private final Integer watchedEpisodes;
 
     /**
-     * The current status of the anime in the user's list (e.g., Watching, Completed).
+     * The total rating given by the user.
      */
-    private final String status;
+    @JsonProperty("rateTotal")
+    private final Integer userTotalRating;
 
     /**
-     * A brief description of the anime.
+     * The rating given by the user for the story of the anime.
      */
+    @JsonProperty("rateStory")
+    private final Integer userStoryRating;
+
+    /**
+     * The rating given by the user for the graphics of the anime.
+     */
+    @JsonProperty("rateGraphic")
+    private final Integer userGraphicRating;
+
+    /**
+     * The rating given by the user for the music of the anime.
+     */
+    @JsonProperty("rateMusic")
+    private final Integer userMusicRating;
+
+    /**
+     * The rating given by the user for the characters in the anime.
+     */
+    @JsonProperty("rateCharacters")
+    private final Integer userCharactersRating;
+
+    /**
+     * A note added by the user regarding the anime.
+     */
+    @JsonProperty("userNote")
+    private final String userNote;
+
+    /**
+     * Indicates whether the user's note is private.
+     */
+    @JsonProperty("userNoteIsPrivate")
+    @JsonDeserialize(using = BooleanDeserializer.class)
+    private final boolean userNotePrivate;
+
+    /**
+     * The English description of the anime.
+     */
+    @JsonProperty("descriptionEn")
+    private final String descriptionEn;
+
+    /**
+     * The description of the anime in Polish.
+     */
+    @JsonProperty("descriptionPl")
     private final String description;
 }
