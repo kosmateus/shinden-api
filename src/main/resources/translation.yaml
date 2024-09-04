@@ -2588,6 +2588,7 @@ title:
     ona: ONA
     movie: Movie
     special: Special
+    music: Music
 user:
   favorite:
     tags:

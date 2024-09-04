@@ -233,7 +233,7 @@ public class AnimeListRequest {
      * Provides methods to add various query parameters to the request being constructed.
      * </p>
      */
-    public class AnimeListRequestBuilder {
+    public static class AnimeListRequestBuilder {
 
         /**
          * Adds a tag to the request filter.
