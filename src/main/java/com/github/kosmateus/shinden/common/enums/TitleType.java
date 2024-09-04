@@ -1,11 +1,12 @@
-package com.github.kosmateus.shinden.user.common.enums;
+package com.github.kosmateus.shinden.common.enums;
 
+import com.github.kosmateus.shinden.http.request.QueryParam;
 import com.github.kosmateus.shinden.i18n.Translatable;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 /**
- * Enumeration representing the type of a media title (e.g., anime).
+ * Enumeration representing the type of media title (e.g., anime).
  * <p>
  * The {@code TitleType} enum defines the various types a media title can belong to, such as "TV", "OVA", or "Movie."
  * Each enum constant is associated with a display value and a translation key for internationalization purposes.
@@ -16,7 +17,7 @@ import lombok.RequiredArgsConstructor;
  */
 @Getter
 @RequiredArgsConstructor
-public enum TitleType implements Translatable {
+public enum TitleType implements Translatable, QueryParam {
 
     /**
      * Represents a TV series.
@@ -41,7 +42,12 @@ public enum TitleType implements Translatable {
     /**
      * Represents a special episode or feature, typically a bonus or extra.
      */
-    SPECIAL("Special", "title.type.special");
+    SPECIAL("Special", "title.type.special"),
+
+    /**
+     * Represents a music video or concert.
+     */
+    MUSIC("Music", "title.type.music");
 
     /**
      * The display value associated with the title type.
@@ -52,6 +58,7 @@ public enum TitleType implements Translatable {
      * The translation key used for internationalization of the title type.
      */
     private final String translationKey;
+
 
     /**
      * Returns the {@code TitleType} corresponding to the specified value.
@@ -71,5 +78,16 @@ public enum TitleType implements Translatable {
             }
         }
         throw new IllegalArgumentException("Unknown title type: " + value);
+    }
+
+    @Override
+    public String getQueryParameter() {
+        return "animeType";
+
+    }
+
+    @Override
+    public String getQueryValue() {
+        return value;
     }
 }

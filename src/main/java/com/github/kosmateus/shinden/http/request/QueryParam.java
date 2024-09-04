@@ -17,12 +17,12 @@ public interface QueryParam {
      *
      * @return the parameter name as a {@link String}.
      */
-    String getParameter();
+    String getQueryParameter();
 
     /**
      * Returns the value of the query parameter.
      *
      * @return the parameter value as a {@link String}.
      */
-    String getValue();
+    String getQueryValue();
 }

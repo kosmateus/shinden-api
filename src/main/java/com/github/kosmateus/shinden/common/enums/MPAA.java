@@ -1,5 +1,6 @@
-package com.github.kosmateus.shinden.user.common.enums;
+package com.github.kosmateus.shinden.common.enums;
 
+import com.github.kosmateus.shinden.http.request.QueryParam;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -15,7 +16,7 @@ import lombok.RequiredArgsConstructor;
  */
 @Getter
 @RequiredArgsConstructor
-public enum MPAA {
+public enum MPAA implements QueryParam {
 
     /**
      * General audiences – All ages admitted.
@@ -45,7 +46,12 @@ public enum MPAA {
     /**
      * Adult Only – Explicit content. Not suitable for anyone under 17.
      */
-    RX("Rx");
+    RX("Rx"),
+
+    /**
+     * Restricted Young – Under 17 requires accompanying parent or adult guardian.
+     */
+    RY("Ry");
 
     /**
      * The string value associated with the MPAA rating.
@@ -70,5 +76,25 @@ public enum MPAA {
             }
         }
         throw new IllegalArgumentException("Unknown MPAA rating: " + value);
+    }
+
+    /**
+     * Returns the name of the query parameter.
+     *
+     * @return the parameter name as a {@link String}.
+     */
+    @Override
+    public String getQueryParameter() {
+        return "mpaaRating";
+    }
+
+    /**
+     * Returns the value of the query parameter.
+     *
+     * @return the parameter value as a {@link String}.
+     */
+    @Override
+    public String getQueryValue() {
+        return value;
     }
 }

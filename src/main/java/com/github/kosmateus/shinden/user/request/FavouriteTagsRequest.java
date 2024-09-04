@@ -105,8 +105,13 @@ public class FavouriteTagsRequest implements UserId {
         private final String translationKey;
 
         @Override
-        public String getParameter() {
+        public String getQueryParameter() {
             return "list_type";
+        }
+
+        @Override
+        public String getQueryValue() {
+            return value;
         }
     }
 
@@ -153,9 +158,15 @@ public class FavouriteTagsRequest implements UserId {
         private final String translationKey;
 
         @Override
-        public String getParameter() {
+        public String getQueryParameter() {
             return REQUEST_PARAM;
         }
+
+        @Override
+        public String getQueryValue() {
+            return value;
+        }
+
     }
 
     /**
@@ -216,8 +227,13 @@ public class FavouriteTagsRequest implements UserId {
         private final String translationKey;
 
         @Override
-        public String getParameter() {
+        public String getQueryParameter() {
             return REQUEST_PARAM;
+        }
+
+        @Override
+        public String getQueryValue() {
+            return value;
         }
     }
 }

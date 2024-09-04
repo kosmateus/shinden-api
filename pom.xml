@@ -147,6 +147,12 @@
             <scope>test</scope>
             <version>2.8.0</version>
         </dependency>
+        <dependency>
+            <artifactId>classgraph</artifactId>
+            <groupId>io.github.classgraph</groupId>
+            <scope>test</scope>
+            <version>4.8.154</version>
+        </dependency>
     </dependencies>
 
     <build>

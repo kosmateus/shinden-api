@@ -1,6 +1,6 @@
 package com.github.kosmateus.shinden.user.response;
 
-import com.github.kosmateus.shinden.user.common.enums.TitleType;
+import com.github.kosmateus.shinden.common.enums.TitleType;
 import com.github.kosmateus.shinden.user.common.enums.UrlType;
 import lombok.Builder;
 import lombok.Getter;

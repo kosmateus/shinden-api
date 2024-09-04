@@ -1,5 +1,7 @@
 package com.github.kosmateus.shinden.common.request;
 
+import com.github.kosmateus.shinden.http.request.SortParam;
+
 import java.util.Optional;
 
 /**
@@ -10,9 +12,10 @@ import java.util.Optional;
  * way to request a specific page of data in a paginated collection.
  * </p>
  *
- * @version 1.0.0
+ * @param <T> the enum type representing the properties to sort by
+ * @version 1.0.1
  */
-public interface Pageable {
+public interface Pageable<T extends Enum<T> & SortParam<T>> {
 
     /**
      * Creates a new instance of {@code Pageable}.
@@ -21,13 +24,14 @@ public interface Pageable {
      * with the specified page number, page size, and sorting parameters.
      * </p>
      *
-     * @param pageNumber the page number, zero-based
-     * @param pageSize   the page size
-     * @param sort       the sorting parameters
+     * @param pageNumber the page number, zero-based (0 is the first page)
+     * @param pageSize   the size of the page, must be greater than zero
+     * @param sort       the sorting parameters, may be {@code null} for no sorting
+     * @param <T>        the enum type representing the properties to sort by
      * @return a new instance of {@code Pageable}
      */
-    static Pageable of(int pageNumber, int pageSize, Sort sort) {
-        return new PageableImpl(pageNumber, pageSize, sort);
+    static <T extends Enum<T> & SortParam<T>> Pageable<T> of(int pageNumber, int pageSize, Sort<T> sort) {
+        return new PageableImpl<>(pageNumber, pageSize, sort);
     }
 
     /**
@@ -66,7 +70,7 @@ public interface Pageable {
      *
      * @return an {@link Optional} with sorting parameters or empty if unsorted
      */
-    Optional<Sort> getSort();
+    Optional<Sort<T>> getSort();
 
     /**
      * Returns a {@code Pageable} instance for the next page.
@@ -77,7 +81,7 @@ public interface Pageable {
      *
      * @return a {@code Pageable} for the next page
      */
-    default Pageable next() {
+    default Pageable<T> next() {
         return of(getPageNumber() + 1, getPageSize(), getSort().orElse(Sort.unsorted()));
     }
 
@@ -90,7 +94,7 @@ public interface Pageable {
      *
      * @return a {@code Pageable} for the previous page or the first page
      */
-    default Pageable previousOrFirst() {
+    default Pageable<T> previousOrFirst() {
         return hasPrevious() ? of(getPageNumber() - 1, getPageSize(), getSort().orElse(Sort.unsorted())) : first();
     }
 
@@ -103,7 +107,7 @@ public interface Pageable {
      *
      * @return a {@code Pageable} for the first page
      */
-    default Pageable first() {
+    default Pageable<T> first() {
         return of(0, getPageSize(), getSort().orElse(Sort.unsorted()));
     }
 

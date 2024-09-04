@@ -8,6 +8,7 @@ import com.github.kosmateus.shinden.exception.JsoupParserException;
 import com.github.kosmateus.shinden.exception.NotFoundException;
 import com.github.kosmateus.shinden.user.request.AddToListSettingsRequest;
 import com.github.kosmateus.shinden.user.request.AnimeListRequest;
+import com.github.kosmateus.shinden.user.request.AnimeListRequest.SortType;
 import com.github.kosmateus.shinden.user.request.AvatarFileUpdateRequest;
 import com.github.kosmateus.shinden.user.request.AvatarUrlUpdateRequest;
 import com.github.kosmateus.shinden.user.request.BaseSettingsRequest;
@@ -297,7 +298,7 @@ public interface UserApi {
      * @throws NotFoundException        if the user is not found.
      * @throws ForbiddenException       if the user is not authorized to access the anime list.
      */
-    Page<AnimeListItem> getAnimeList(@Valid @NotNull AnimeListRequest request, @NotNull Pageable pageable);
+    Page<AnimeListItem> getAnimeList(@Valid @NotNull AnimeListRequest request, @NotNull Pageable<SortType> pageable);
 
     /**
      * Retrieves a list of all anime items from a user's anime list.

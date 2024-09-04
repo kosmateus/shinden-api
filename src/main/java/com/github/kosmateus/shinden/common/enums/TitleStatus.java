@@ -1,4 +1,4 @@
-package com.github.kosmateus.shinden.user.common.enums;
+package com.github.kosmateus.shinden.common.enums;
 
 import com.github.kosmateus.shinden.http.request.QueryParam;
 import com.github.kosmateus.shinden.i18n.Translatable;
@@ -80,7 +80,22 @@ public enum TitleStatus implements Translatable, QueryParam {
      * @return the query parameter name as a {@link String}
      */
     @Override
-    public String getParameter() {
+    public String getQueryParameter() {
         return "titleStatus";
     }
+
+    /**
+     * Returns the value of the query parameter.
+     * <p>
+     * This method provides the value of the query parameter that represents the title status
+     * in an HTTP request.
+     * </p>
+     *
+     * @return the query parameter value as a {@link String}
+     */
+    @Override
+    public String getQueryValue() {
+        return value;
+    }
+
 }

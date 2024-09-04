@@ -135,7 +135,7 @@ public final class HttpRequest {
             path += "?" + createQueryParams();
         }
 
-        return path;
+        return path.replaceAll(" ", "%20");
     }
 
     /**

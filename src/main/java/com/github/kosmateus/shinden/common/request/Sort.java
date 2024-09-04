@@ -1,5 +1,6 @@
 package com.github.kosmateus.shinden.common.request;
 
+import com.github.kosmateus.shinden.http.request.SortParam;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -16,13 +17,14 @@ import java.util.List;
  * order based on specified properties.
  * </p>
  *
+ * @param <T> the enum type representing the properties to sort by
  * @version 1.0.0
  */
 @Getter
 @RequiredArgsConstructor
-public class Sort {
+public class Sort<T extends Enum<T> & SortParam<T>> {
 
-    private final List<Order> orders;
+    private final List<Order<T>> orders;
 
     /**
      * Creates a {@code Sort} instance with the specified sorting orders.
@@ -32,10 +34,12 @@ public class Sort {
      * </p>
      *
      * @param orders one or more {@link Order} objects representing the sorting criteria
+     * @param <T>    the enum type representing the properties to sort by
      * @return a new {@code Sort} instance with the specified sorting orders
      */
-    public static Sort by(Order... orders) {
-        return new Sort(Arrays.asList(orders));
+    @SafeVarargs
+    public static <T extends Enum<T> & SortParam<T>> Sort<T> by(Order<T>... orders) {
+        return new Sort<>(Arrays.asList(orders));
     }
 
     /**
@@ -45,10 +49,11 @@ public class Sort {
      * indicating that the query should not apply any specific ordering.
      * </p>
      *
+     * @param <T> the enum type representing the properties to sort by
      * @return an unsorted {@code Sort} instance
      */
-    public static Sort unsorted() {
-        return new Sort(Collections.emptyList());
+    public static <T extends Enum<T> & SortParam<T>> Sort<T> unsorted() {
+        return new Sort<>(Collections.emptyList());
     }
 
     /**
@@ -89,16 +94,18 @@ public class Sort {
      * The {@code Order} class specifies the property to sort by and the direction of the sort
      * (ascending or descending).
      * </p>
+     *
+     * @param <T> the enum type representing the properties to sort by
      */
     @Getter
     @Builder
     @RequiredArgsConstructor
-    public static class Order {
+    public static class Order<T extends Enum<T> & SortParam<T>> {
 
         /**
          * The property to sort by.
          */
-        private final String property;
+        private final T property;
 
         /**
          * The direction of the sort (ascending or descending).

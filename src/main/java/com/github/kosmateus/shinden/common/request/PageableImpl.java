@@ -1,22 +1,25 @@
 package com.github.kosmateus.shinden.common.request;
 
+import com.github.kosmateus.shinden.http.request.SortParam;
+
 import java.util.Optional;
 
 /**
- * Implementation of the {@link Pageable} interface to encapsulate pagination information.
+ * Implementation of the {@link Pageable<T>} interface to encapsulate pagination information.
  * <p>
  * The {@code PageableImpl} class provides a concrete implementation of the {@link Pageable} interface,
  * allowing for the creation of paginated requests with specified page numbers, page sizes, and sorting
  * parameters.
  * </p>
  *
- * @version 1.0.0
+ * @param <T> the enum type representing the properties to sort by
+ * @version 1.0.1
  */
-class PageableImpl implements Pageable {
+class PageableImpl<T extends Enum<T> & SortParam<T>> implements Pageable<T> {
 
     private final int pageNumber;
     private final int pageSize;
-    private final Sort sort;
+    private final Sort<T> sort;
 
     /**
      * Constructs a new {@code PageableImpl} instance with the given page number, page size, and sorting parameters.
@@ -26,7 +29,7 @@ class PageableImpl implements Pageable {
      * @param sort       the sorting parameters, may be {@code null} for no sorting
      * @throws IllegalArgumentException if the page number is less than zero or the page size is less than one
      */
-    PageableImpl(int pageNumber, int pageSize, Sort sort) {
+    PageableImpl(int pageNumber, int pageSize, Sort<T> sort) {
         if (pageNumber < 0) {
             throw new IllegalArgumentException("Page number must not be less than zero!");
         }
@@ -66,10 +69,10 @@ class PageableImpl implements Pageable {
      * If no sorting is provided, this method returns an empty {@link Optional}.
      * </p>
      *
-     * @return an {@link Optional} containing the sorting parameters, or empty if unsorted
+     * @return an {@link Optional} containing the sorting parameters, or an empty {@link Optional} if unsorted
      */
     @Override
-    public Optional<Sort> getSort() {
+    public Optional<Sort<T>> getSort() {
         return Optional.ofNullable(sort);
     }
 }

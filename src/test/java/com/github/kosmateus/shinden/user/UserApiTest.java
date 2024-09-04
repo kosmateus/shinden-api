@@ -1,12 +1,15 @@
 package com.github.kosmateus.shinden.user;
 
 import com.github.kosmateus.shinden.BaseTest;
+import com.github.kosmateus.shinden.common.enums.MPAA;
+import com.github.kosmateus.shinden.common.enums.TitleStatus;
+import com.github.kosmateus.shinden.common.enums.TitleType;
+import com.github.kosmateus.shinden.common.enums.tag.Genre;
 import com.github.kosmateus.shinden.common.request.Pageable;
 import com.github.kosmateus.shinden.common.request.Sort;
 import com.github.kosmateus.shinden.common.response.Page;
 import com.github.kosmateus.shinden.common.response.UpdateResult;
 import com.github.kosmateus.shinden.http.request.LocalFileResource;
-import com.github.kosmateus.shinden.i18n.Translatable;
 import com.github.kosmateus.shinden.user.common.AnimeListSettings;
 import com.github.kosmateus.shinden.user.common.MangaListSettings;
 import com.github.kosmateus.shinden.user.common.PageSettings;
@@ -20,8 +23,6 @@ import com.github.kosmateus.shinden.user.common.enums.SkipFillers;
 import com.github.kosmateus.shinden.user.common.enums.SliderPosition;
 import com.github.kosmateus.shinden.user.common.enums.StatusAutoChange;
 import com.github.kosmateus.shinden.user.common.enums.SubtitlesLanguage;
-import com.github.kosmateus.shinden.user.common.enums.TitleStatus;
-import com.github.kosmateus.shinden.user.common.enums.TitleType;
 import com.github.kosmateus.shinden.user.common.enums.UserGender;
 import com.github.kosmateus.shinden.user.common.enums.UserTitleStatus;
 import com.github.kosmateus.shinden.user.request.AddToListSettingsRequest;
@@ -51,7 +52,7 @@ import com.github.kosmateus.shinden.user.response.Review;
 import com.github.kosmateus.shinden.user.response.UserInformation;
 import com.github.kosmateus.shinden.user.response.UserOverview;
 import com.github.kosmateus.shinden.user.response.UserSettings;
-import com.github.kosmateus.shinden.utils.ResourceLoader;
+import com.github.kosmateus.shinden.utils.ResourceUtils;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -78,9 +79,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static com.github.kosmateus.shinden.common.request.Sort.Direction.ASC;
 import static com.github.kosmateus.shinden.common.response.Result.SUCCESS;
-import static com.github.kosmateus.shinden.i18n.TranslationUtil.getTranslation;
 import static com.github.kosmateus.shinden.user.UserApiTest.UserAsserts.IMAGE_EXTENSIONS;
 import static com.github.kosmateus.shinden.user.UserApiTest.UserAsserts.LANGUAGE;
 import static com.github.kosmateus.shinden.user.UserApiTest.UserAsserts.PAST_DATE_TIME;
@@ -92,10 +91,10 @@ import static com.github.kosmateus.shinden.user.UserApiTest.UserAsserts.assertCo
 import static com.github.kosmateus.shinden.user.UserApiTest.UserAsserts.assertFavouriteEntities;
 import static com.github.kosmateus.shinden.user.UserApiTest.UserAsserts.assertFavouriteMediaItems;
 import static com.github.kosmateus.shinden.user.UserApiTest.UserAsserts.assertStatistics;
-import static com.github.kosmateus.shinden.user.request.AnimeListRequest.SortOrder.byProgress;
-import static com.github.kosmateus.shinden.user.request.AnimeListRequest.SortOrder.byRate;
-import static com.github.kosmateus.shinden.user.request.AnimeListRequest.SortOrder.byTitle;
-import static com.github.kosmateus.shinden.user.request.AnimeListRequest.SortOrder.byType;
+import static com.github.kosmateus.shinden.user.request.AnimeListRequest.SortType.PROGRESS;
+import static com.github.kosmateus.shinden.user.request.AnimeListRequest.SortType.RATE;
+import static com.github.kosmateus.shinden.user.request.AnimeListRequest.SortType.TITLE;
+import static com.github.kosmateus.shinden.user.request.AnimeListRequest.SortType.TYPE;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
@@ -434,7 +433,7 @@ class UserApiTest extends BaseTest {
         @DisplayName("Should successfully update avatar with file")
         void shouldSuccessfullyUpdateAvatarWithFile() throws IOException {
             login();
-            UpdateResult result = userApi.updateAvatar(new AvatarFileUpdateRequest(getLoggedInUserId(), LocalFileResource.of(ResourceLoader.loadFile("user/avatar.png"))));
+            UpdateResult result = userApi.updateAvatar(new AvatarFileUpdateRequest(getLoggedInUserId(), LocalFileResource.of(ResourceUtils.loadFile("user/avatar.png"))));
 
             assertThat(result).isNotNull();
             assertThat(result.getResult()).isEqualTo(SUCCESS);
@@ -484,7 +483,7 @@ class UserApiTest extends BaseTest {
         void shouldSuccessfullyImportMalList() throws IOException {
             login();
 
-            File malListFile = ResourceLoader.loadFile("user/anime-list.gz");
+            File malListFile = ResourceUtils.loadFile("user/anime-list.gz");
 
             ImportMalListRequest request = ImportMalListRequest.builder()
                     .userId(getLoggedInUserId())
@@ -503,7 +502,7 @@ class UserApiTest extends BaseTest {
         void shouldSuccessfullyImportMalListWithReplaceType() throws IOException {
             login();
 
-            File malListFile = ResourceLoader.loadFile("user/anime-list.gz");
+            File malListFile = ResourceUtils.loadFile("user/anime-list.gz");
 
             ImportMalListRequest request = ImportMalListRequest.builder()
                     .userId(getLoggedInUserId())
@@ -515,42 +514,6 @@ class UserApiTest extends BaseTest {
 
             assertThat(result).isNotNull();
             assertThat(result.getResult()).isEqualTo(SUCCESS);
-        }
-    }
-
-    @Nested
-    @DisplayName("Translation tests")
-    class TranslationTests {
-
-        @Test
-        @DisplayName("Should properly translate all Translatable enums")
-        void shouldProperlyTranslateAllTranslatableEnums() {
-            assertTranslations(ImportType.values());
-            assertTranslations(ChapterLanguage.values());
-            assertTranslations(UserTitleStatus.values());
-            assertTranslations(SubtitlesLanguage.values());
-            assertTranslations(SkipFillers.values());
-            assertTranslations(ChapterStatus.values());
-            assertTranslations(ListType.values());
-            assertTranslations(RateType.values());
-            assertTranslations(TagType.values());
-            assertTranslations(StatusAutoChange.values());
-            assertTranslations(TitleStatus.values());
-            assertTranslations(TitleType.values());
-        }
-
-        private <T extends Enum<T> & Translatable> void assertTranslations(T[] values) {
-            for (T value : values) {
-                String translation = getTranslation(value.getTranslationKey());
-                assertThat(translation)
-                        .withFailMessage("Translation missing for %s.%s with key %s",
-                                value.getDeclaringClass().getSimpleName(), value.name(), value.getTranslationKey())
-                        .isNotBlank();
-                assertThat(translation)
-                        .withFailMessage("Translation for %s.%s is the same as the key: %s",
-                                value.getDeclaringClass().getSimpleName(), value.name(), value.getTranslationKey())
-                        .isNotEqualTo(value.getTranslationKey());
-            }
         }
     }
 
@@ -628,7 +591,7 @@ class UserApiTest extends BaseTest {
         void shouldSuccessfullyGetPageableAnimeList() {
             login();
             Page<AnimeListItem> animeListPage = userApi.getAnimeList(AnimeListRequest.builder().userId(getLoggedInUserId())
-                    .build(), Pageable.of(1, 20, Sort.by(byTitle(ASC))));
+                    .build(), Pageable.of(1, 20, Sort.by(TITLE.asc())));
             List<AnimeListItem> content = animeListPage.getContent();
             assertAnimeList(content, true);
             assertThat(content).hasSize(20);
@@ -639,7 +602,7 @@ class UserApiTest extends BaseTest {
         void shouldSuccessfullyGetPageableAnimeListSortedByRate() {
             login();
             Page<AnimeListItem> animeListPage = userApi.getAnimeList(AnimeListRequest.builder().userId(getLoggedInUserId())
-                    .build(), Pageable.of(1, 20, Sort.by(byRate(ASC))));
+                    .build(), Pageable.of(1, 20, Sort.by(RATE.asc())));
             List<AnimeListItem> content = animeListPage.getContent();
             assertAnimeList(content, true);
             assertThat(content).hasSize(20);
@@ -650,7 +613,7 @@ class UserApiTest extends BaseTest {
         void shouldSuccessfullyGetPageableAnimeListSortedByProgress() {
             login();
             Page<AnimeListItem> animeListPage = userApi.getAnimeList(AnimeListRequest.builder().userId(getLoggedInUserId())
-                    .build(), Pageable.of(1, 20, Sort.by(byProgress(ASC))));
+                    .build(), Pageable.of(1, 20, Sort.by(PROGRESS.asc())));
             List<AnimeListItem> content = animeListPage.getContent();
             assertAnimeList(content, true);
             assertThat(content).hasSize(20);
@@ -661,10 +624,35 @@ class UserApiTest extends BaseTest {
         void shouldSuccessfullyGetPageableAnimeListSortedByType() {
             login();
             Page<AnimeListItem> animeListPage = userApi.getAnimeList(AnimeListRequest.builder().userId(getLoggedInUserId())
-                    .build(), Pageable.of(1, 20, Sort.by(byType(ASC))));
+                    .build(), Pageable.of(1, 20, Sort.by(TYPE.asc())));
             List<AnimeListItem> content = animeListPage.getContent();
             assertAnimeList(content, true);
             assertThat(content).hasSize(20);
+        }
+
+        @Test
+        @DisplayName("Should successfully get anime list with custom settings")
+        void shouldSuccessfullyGetAnimeListWithCustomSettings() {
+            login();
+            List<AnimeListItem> animeList = userApi.getAnimeList(
+                    AnimeListRequest.builder()
+                            .userId(getLoggedInUserId())
+                            .status(UserTitleStatus.COMPLETED)
+                            .addAgeRating(MPAA.G)
+                            .addAgeRating(MPAA.PG)
+                            .addAgeRating(MPAA.R)
+                            .addTag(Genre.THRILLER)
+                            .addTag(Genre.SUPERNATURAL)
+                            .premiereYearMin(1950)
+                            .premiereYearMax(2024)
+                            .addAnimeStatus(TitleStatus.FINISHED_AIRING)
+                            .addAnimeStatus(TitleStatus.CURRENTLY_AIRING)
+                            .addAnimeType(TitleType.TV)
+                            .addAnimeType(TitleType.MOVIE)
+                            .build()
+            );
+
+            assertAnimeList(animeList, true);
         }
 
 

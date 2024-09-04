@@ -8,6 +8,7 @@ import com.github.kosmateus.shinden.http.response.ResponseHandler;
 import com.github.kosmateus.shinden.http.rest.HttpClient;
 import com.github.kosmateus.shinden.user.common.enums.UserTitleStatus;
 import com.github.kosmateus.shinden.user.request.AnimeListRequest;
+import com.github.kosmateus.shinden.user.request.AnimeListRequest.SortType;
 import com.github.kosmateus.shinden.user.response.AnimeListItem;
 import com.github.kosmateus.shinden.user.response.ListResponse;
 import com.github.kosmateus.shinden.utils.PathParamsBuilder;
@@ -17,6 +18,7 @@ import com.google.inject.Inject;
 import lombok.RequiredArgsConstructor;
 
 import javax.annotation.Nullable;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -126,33 +128,32 @@ class UserHttpClient {
      * @param pageable an optional {@link Pageable} object containing pagination information, such as page number and size. Can be null.
      * @return a {@link ResponseHandler} containing a {@link ListResponse} of {@link AnimeListItem} representing the user's anime list.
      */
-    ResponseHandler<ListResponse<AnimeListItem>> getAnimeList(AnimeListRequest request, @Nullable Pageable pageable) {
+    ResponseHandler<ListResponse<AnimeListItem>> getAnimeList(AnimeListRequest request, @Nullable Pageable<SortType> pageable) {
         String path = "/api/userlist/" + request.getUserId() + "/anime" + Optional.ofNullable(request.getStatus())
                 .map(UserTitleStatus::getPathValue)
                 .map(status -> "/" + status)
                 .orElse("");
 
+        HashMap<String, String> queryParams = new HashMap<>(request.toQueryParams());
         if (pageable == null) {
+            queryParams.put("limit", "100000");
             return httpClient.get(HttpRequest.builder()
                     .target(SHINDEN_USER_LIST_URL)
                     .path(path)
                     .pathParams(PathParamsBuilder.build(request.getStatus()))
-                    .queryParams(ImmutableMap.of(
-                            "limit", "100000"
-                    ))
+                    .queryParams(queryParams)
                     .build(), new TypeReference<ListResponse<AnimeListItem>>() {
             });
         }
 
+        queryParams.put("limit", String.valueOf(pageable.getPageSize()));
+        queryParams.put("offset", String.valueOf(pageable.getOffset()));
+        queryParams.put("sort", SortParamsBuilder.build(pageable));
         return httpClient.get(HttpRequest.builder()
                 .target(SHINDEN_USER_LIST_URL)
                 .path(path)
                 .pathParams(PathParamsBuilder.build(request.getStatus()))
-                .queryParams(ImmutableMap.of(
-                        "limit", String.valueOf(pageable.getPageSize()),
-                        "offset", String.valueOf(pageable.getOffset()),
-                        "sort", SortParamsBuilder.build(pageable)
-                ))
+                .queryParams(queryParams)
                 .build(), new TypeReference<ListResponse<AnimeListItem>>() {
         });
     }

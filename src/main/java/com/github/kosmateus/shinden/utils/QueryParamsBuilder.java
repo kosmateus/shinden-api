@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * The {@code QueryParamsBuilder} class is a utility for constructing query parameter maps.
@@ -36,9 +37,46 @@ public class QueryParamsBuilder {
                 .filter(Objects::nonNull)
                 .collect(
                         ImmutableMap.Builder<String, String>::new,
-                        (builder, queryParam) -> builder.put(queryParam.getParameter(), queryParam.getValue()),
+                        (builder, queryParam) -> builder.put(queryParam.getQueryParameter(), queryParam.getQueryValue()),
                         (builder1, builder2) -> builder1.putAll(builder2.build())
                 )
                 .build();
     }
+
+    /**
+     * Constructs a map of query parameters by combining values with specified separators for each class of {@link QueryParam}.
+     *
+     * <p>This method allows for the combination of multiple query parameter values into a single entry
+     * using a specified separator for each {@link QueryParam} class. It filters out any {@code null}
+     * parameters to prevent {@code NullPointerException} during map construction.</p>
+     *
+     * @param separatorMap a map that associates each {@link QueryParam} class with its separator
+     * @param queryParams  an array of {@link QueryParam} objects
+     * @return an immutable map of combined query parameters
+     */
+    public static Map<String, String> buildWithSeparators(Map<Class<? extends QueryParam>, String> separatorMap, QueryParam... queryParams) {
+        ImmutableMap.Builder<String, String> builder = new ImmutableMap.Builder<>();
+        Map<String, String> tempMap = new java.util.HashMap<>();
+        Arrays.stream(queryParams)
+                .filter(Objects::nonNull)
+                .forEach(queryParam -> {
+                    String key = queryParam.getQueryParameter();
+                    String value = queryParam.getQueryValue();
+                    String separator = separatorMap.getOrDefault(queryParam.getClass(), ",");
+
+                    if (tempMap.containsKey(key)) {
+                        String combinedValue = tempMap.get(key) + separator + value;
+                        tempMap.put(key, combinedValue);
+                    } else {
+                        tempMap.put(key, value);
+                    }
+                });
+        tempMap.forEach(builder::put);
+        return builder.build();
+    }
+
+    public static Map<String, String> buildWithSeparators(Map<Class<? extends QueryParam>, String> separatorMap, Set<QueryParam> queryParams) {
+        return buildWithSeparators(separatorMap, queryParams.toArray(new QueryParam[0]));
+    }
+
 }

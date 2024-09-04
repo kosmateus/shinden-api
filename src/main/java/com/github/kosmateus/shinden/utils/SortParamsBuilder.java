@@ -30,11 +30,11 @@ public class SortParamsBuilder {
      * @param pageable the {@link Pageable} object containing pagination and sorting information
      * @return a string representation of the sorting parameters, or {@code null} if no sorting is defined
      */
-    public static String build(Pageable pageable) {
+    public static String build(Pageable<?> pageable) {
         return pageable.getSort()
                 .map(Sort::getOrders)
                 .flatMap(orders -> orders.stream()
-                        .map(order -> order.getProperty() + order.getDirection().name())
+                        .map(order -> order.getProperty().getSortValue() + order.getDirection().name())
                         .reduce((a, b) -> a + "," + b))
                 .orElse(null);
     }

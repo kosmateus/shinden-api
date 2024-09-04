@@ -4,9 +4,9 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.github.kosmateus.shinden.user.common.enums.MPAA;
-import com.github.kosmateus.shinden.user.common.enums.TitleStatus;
-import com.github.kosmateus.shinden.user.common.enums.TitleType;
+import com.github.kosmateus.shinden.common.enums.MPAA;
+import com.github.kosmateus.shinden.common.enums.TitleStatus;
+import com.github.kosmateus.shinden.common.enums.TitleType;
 import com.github.kosmateus.shinden.user.common.enums.UserTitleStatus;
 
 import java.io.IOException;

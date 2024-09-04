@@ -20,6 +20,7 @@ import com.github.kosmateus.shinden.user.mapper.UserReviewsMapper;
 import com.github.kosmateus.shinden.user.mapper.UserSettingsMapper;
 import com.github.kosmateus.shinden.user.request.AddToListSettingsRequest;
 import com.github.kosmateus.shinden.user.request.AnimeListRequest;
+import com.github.kosmateus.shinden.user.request.AnimeListRequest.SortType;
 import com.github.kosmateus.shinden.user.request.AvatarFileUpdateRequest;
 import com.github.kosmateus.shinden.user.request.AvatarUrlUpdateRequest;
 import com.github.kosmateus.shinden.user.request.BaseSettingsRequest;
@@ -198,7 +199,7 @@ class UserApiImpl implements UserApi {
     }
 
     @Override
-    public Page<AnimeListItem> getAnimeList(AnimeListRequest request, Pageable pageable) {
+    public Page<AnimeListItem> getAnimeList(AnimeListRequest request, Pageable<SortType> pageable) {
         ResponseHandler<ListResponse<AnimeListItem>> animeList = httpClient.getAnimeList(request, pageable);
         validateResponse(animeList);
         return new PageImpl<>(animeList.getEntity().getResult().getItems(), pageable, animeList.getEntity().getResult().getCount());
