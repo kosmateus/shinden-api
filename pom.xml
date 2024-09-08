@@ -164,8 +164,10 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.3.0</version>
+            </plugin>
+            <plugin>
                 <configuration>
                     <annotationProcessorPaths>
                         <path>
@@ -174,7 +176,12 @@
                             <version>1.18.34</version>
                         </path>
                     </annotationProcessorPaths>
+                    <source>8</source>
+                    <target>8</target>
                 </configuration>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <groupId>org.apache.maven.plugins</groupId>
             </plugin>
             <plugin>
                 <groupId>org.ec4j.maven</groupId>

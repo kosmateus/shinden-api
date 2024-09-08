@@ -3,6 +3,14 @@ package com.github.kosmateus.shinden.common.enums.tag;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Enumeration representing different studios for tagging purposes in the application.
+ *
+ * <p>Each studio is associated with a unique identifier and a translation key for localization
+ * purposes, along with predefined query parameters used for API searches.</p>
+ *
+ * @version 1.0.0
+ */
 @Getter
 @RequiredArgsConstructor
 public enum Studio implements Tag {
@@ -1433,16 +1441,9 @@ public enum Studio implements Tag {
 
     private final Integer id;
     private final String translationKey;
-
-    @Override
-    public String getTagType() {
-        return "studio";
-    }
-
-    @Override
-    public String getQueryParameter() {
-        return "tag";
-    }
+    private final String tagType = "studio";
+    private final String queryParameter = "tag";
+    private final String animeSearchQueryParameter = "genres";
 
     @Override
     public String getQueryValue() {

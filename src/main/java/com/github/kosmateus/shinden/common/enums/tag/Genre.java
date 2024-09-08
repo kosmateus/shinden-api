@@ -3,6 +3,17 @@ package com.github.kosmateus.shinden.common.enums.tag;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.util.stream.Stream;
+
+/**
+ * Enum representing different genres for tagging anime or manga.
+ * <p>
+ * Each genre is associated with a unique identifier and a translation key.
+ * The enum provides methods to retrieve a genre based on its ID or a string representation of the ID.
+ * </p>
+ *
+ * @version 1.0.0
+ */
 @Getter
 @RequiredArgsConstructor
 public enum Genre implements Tag {
@@ -46,15 +57,32 @@ public enum Genre implements Tag {
 
     private final Integer id;
     private final String translationKey;
+    private final String tagType = "genre";
+    private final String queryParameter = "tag";
+    private final String animeSearchQueryParameter = "genres";
 
-    @Override
-    public String getTagType() {
-        return "genre";
+    /**
+     * Retrieves a {@code Genre} enum based on its integer ID.
+     *
+     * @param value the integer ID of the genre
+     * @return the {@code Genre} corresponding to the given ID
+     * @throws IllegalArgumentException if no genre with the given ID exists
+     */
+    public static Genre fromValue(Integer value) {
+        return Stream.of(Genre.values())
+                .filter(genre -> genre.id.equals(value))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("No genre with id " + value));
     }
 
-    @Override
-    public String getQueryParameter() {
-        return "tag";
+    /**
+     * Retrieves a {@code Genre} enum based on its string representation of the ID.
+     *
+     * @param value the string representation of the genre's ID
+     * @return the {@code Genre} corresponding to the given string ID
+     */
+    public static Genre fromValue(String value) {
+        return fromValue(Integer.parseInt(value));
     }
 
     @Override

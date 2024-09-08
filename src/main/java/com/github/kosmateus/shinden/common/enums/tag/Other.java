@@ -3,6 +3,15 @@ package com.github.kosmateus.shinden.common.enums.tag;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Base enumeration interface for defining tags in the application.
+ *
+ * <p>This interface should be implemented by various enum types representing
+ * different categories or characteristics used in tagging entities such as
+ * source materials, character types, or other relevant classifications.</p>
+ *
+ * @version 1.0.0
+ */
 @Getter
 @RequiredArgsConstructor
 public enum Other implements Tag {
@@ -88,16 +97,9 @@ public enum Other implements Tag {
 
     private final Integer id;
     private final String translationKey;
-
-    @Override
-    public String getTagType() {
-        return "tag";
-    }
-
-    @Override
-    public String getQueryParameter() {
-        return "tag";
-    }
+    private final String tagType = "tag";
+    private final String queryParameter = "tag";
+    private final String animeSearchQueryParameter = "genres";
 
     @Override
     public String getQueryValue() {

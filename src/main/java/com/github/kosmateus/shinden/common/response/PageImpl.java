@@ -30,7 +30,7 @@ public class PageImpl<T> implements Page<T> {
      * Constructs a new {@code PageImpl} instance with the specified content, page number, page size, and total elements.
      *
      * @param content       the list of content elements on the current page; may be {@code null} or empty
-     * @param pageNumber    the current page number, zero-based
+     * @param pageNumber    the current page number
      * @param pageSize      the number of elements per page
      * @param totalElements the total number of elements across all pages
      */

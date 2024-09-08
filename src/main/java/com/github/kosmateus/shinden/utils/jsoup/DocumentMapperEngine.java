@@ -48,10 +48,10 @@ public class DocumentMapperEngine {
 
     private static final Function<Pair<DateTimeFormatter, DateTimeFormatter>, Map<Class<?>, Function<String, ?>>> TYPE_MAPPERS = (dateTimeFormatters) -> ImmutableMap.of(
             String.class, Function.identity(),
-            Long.class, value -> Long.valueOf(clearForNumber(value)),
-            Integer.class, value -> Integer.valueOf(clearForNumber(value)),
-            Double.class, value -> Double.valueOf(clearForNumber(value)),
-            Float.class, value -> Float.valueOf(clearForNumber(value)),
+            Long.class, value -> StringUtils.isNotBlank(value) ? Long.valueOf(clearForNumber(value)) : null,
+            Integer.class, value -> StringUtils.isNotBlank(value) ? Integer.valueOf(clearForNumber(value)) : null,
+            Double.class, value -> StringUtils.isNotBlank(value) ? Double.valueOf(clearForNumber(value)) : null,
+            Float.class, value -> StringUtils.isNotBlank(value) ? Float.valueOf(clearForNumber(value)) : null,
             Boolean.class, Boolean::valueOf,
             LocalDate.class, s -> LocalDate.parse(s, dateTimeFormatters.getRight()),
             LocalDateTime.class, s -> LocalDateTime.parse(s, dateTimeFormatters.getLeft())
@@ -114,7 +114,7 @@ public class DocumentMapperEngine {
     }
 
     private static String clearForNumber(String stringNumber) {
-        return stringNumber != null ? stringNumber.replaceAll(" ", "").replaceAll(" ", "") : null;
+        return stringNumber.replaceAll(" ", "").replaceAll(" ", "");
     }
 
     public WithElementStep with(Element document) {

@@ -3,6 +3,14 @@ package com.github.kosmateus.shinden.common.enums.tag;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Enumeration representing different source materials for anime and related media.
+ *
+ * <p>Each source material has an associated unique identifier and a translation key for localization
+ * purposes, along with predefined query parameters used for API searches.</p>
+ *
+ * @version 1.0.0
+ */
 @Getter
 @RequiredArgsConstructor
 public enum SourceMaterial implements Tag {
@@ -20,18 +28,12 @@ public enum SourceMaterial implements Tag {
     VISUAL_NOVEL(1990, "tags.source-material.visual-novel"),
     WEB_MANGA(2025, "tags.source-material.web-manga"),
     WEB_NOVEL(2872, "tags.source-material.web-novel");
+
     private final Integer id;
     private final String translationKey;
-
-    @Override
-    public String getTagType() {
-        return "source";
-    }
-
-    @Override
-    public String getQueryParameter() {
-        return "tag";
-    }
+    private final String tagType = "source";
+    private final String queryParameter = "tag";
+    private final String animeSearchQueryParameter = "genres";
 
     @Override
     public String getQueryValue() {

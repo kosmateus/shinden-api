@@ -1,6 +1,7 @@
 package com.github.kosmateus.shinden.user.request;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.github.kosmateus.shinden.http.request.HttpRequest.KeyValue;
 import com.github.kosmateus.shinden.http.request.QueryParam;
 import com.github.kosmateus.shinden.i18n.Translatable;
 import com.github.kosmateus.shinden.user.common.UserId;
@@ -13,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 import javax.validation.constraints.NotNull;
-import java.util.Map;
+import java.util.List;
 
 /**
  * Represents a request to retrieve a user's favourite tags.
@@ -67,16 +68,16 @@ public class FavouriteTagsRequest implements UserId {
     }
 
     /**
-     * Converts the request parameters into a map of query parameters.
+     * Converts the parameters of this request into a list of query parameters.
      * <p>
-     * This method utilizes the {@link QueryParamsBuilder} to convert the list type, rate type,
-     * and tag type into a map of query parameters that can be used in an HTTP GET request.
+     * This method constructs a list of query parameters based on the list type, rate type, and tag type
+     * specified in this request. The resulting list can be used to build a query string for an HTTP request.
      * </p>
      *
-     * @return a map containing the query parameters
+     * @return a list of query parameters for this request
      */
-    public Map<String, String> toQueryParams() {
-        return QueryParamsBuilder.build(listType, rateType, tagType);
+    public List<KeyValue> toQueryParams() {
+        return QueryParamsBuilder.convertToKeyVal(QueryParamsBuilder.build(listType, rateType, tagType));
     }
 
     /**
@@ -166,7 +167,6 @@ public class FavouriteTagsRequest implements UserId {
         public String getQueryValue() {
             return value;
         }
-
     }
 
     /**

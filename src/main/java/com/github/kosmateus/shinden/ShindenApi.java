@@ -1,5 +1,6 @@
 package com.github.kosmateus.shinden;
 
+import com.github.kosmateus.shinden.anime.AnimeApi;
 import com.github.kosmateus.shinden.auth.InMemorySessionManager;
 import com.github.kosmateus.shinden.auth.SessionManager;
 import com.github.kosmateus.shinden.i18n.TranslationUtil;
@@ -28,6 +29,7 @@ public class ShindenApi {
 
     private final LoginApi loginApi;
     private final UserApi userApi;
+    private final AnimeApi animeApi;
 
     /**
      * Creates an instance of {@code ShindenApi} using the default locale and an in-memory session manager.
@@ -85,5 +87,14 @@ public class ShindenApi {
      */
     public UserApi user() {
         return userApi;
+    }
+
+    /**
+     * Provides access to the {@link AnimeApi} for handling anime-related operations.
+     *
+     * @return an instance of {@link AnimeApi}
+     */
+    public AnimeApi anime() {
+        return animeApi;
     }
 }

@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 /**
  * Guice module for configuring HTTP-related dependencies.
  * <p>
- * The {@code HttpModule} class is responsible for setting up the necessary bindings
+ * The {@code RestModule} class is responsible for setting up the necessary bindings
  * for making HTTP requests in the application. It ensures that the {@link SessionManager},
  * {@link HttpRestClientExecutor}, and {@link HttpClient} are properly configured and
  * managed as singletons within the dependency injection context provided by Guice.
@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
  * @version 1.0.0
  */
 @RequiredArgsConstructor
-public class HttpModule extends AbstractModule {
+public class RestModule extends AbstractModule {
 
     private final SessionManager sessionManager;
 
@@ -37,6 +37,4 @@ public class HttpModule extends AbstractModule {
         bind(HttpRestClientExecutor.class).in(Singleton.class);
         bind(HttpClient.class).in(Singleton.class);
     }
-
 }
-

@@ -1,6 +1,7 @@
 package com.github.kosmateus.shinden;
 
 import com.github.kosmateus.shinden.BaseTest.PauseBetweenTestsExtension;
+import com.github.kosmateus.shinden.anime.AnimeApi;
 import com.github.kosmateus.shinden.auth.InMemorySessionManager;
 import com.github.kosmateus.shinden.auth.SessionManager;
 import com.github.kosmateus.shinden.login.LoginApi;
@@ -46,6 +47,7 @@ public abstract class BaseTest {
     protected static final String PASSWORD = API_CONFIG.getPassword();
     private static final UserApi userApiRoot;
     private static final LoginApi loginApiRoot;
+    private static final AnimeApi animeApiRoot;
     private static final ShindenApi shindenApiRoot;
     private static final SessionManager SESSION_MANAGER_ROOT;
     private static final GsonObjectMapper objectMapperRoot = new GsonObjectMapper();
@@ -57,10 +59,12 @@ public abstract class BaseTest {
         shindenApiRoot = ShindenApi.create(SESSION_MANAGER_ROOT);
         userApiRoot = shindenApiRoot.user();
         loginApiRoot = shindenApiRoot.login();
+        animeApiRoot = shindenApiRoot.anime();
     }
 
     protected UserApi userApi;
     protected LoginApi loginApi;
+    protected AnimeApi animeApi;
     protected ShindenApi shindenApi;
     protected SessionManager sessionManager;
     protected GsonObjectMapper objectMapper;
@@ -80,10 +84,10 @@ public abstract class BaseTest {
         authenticated = false;
         userApi = userApiRoot;
         loginApi = loginApiRoot;
+        animeApi = animeApiRoot;
         shindenApi = shindenApiRoot;
         sessionManager = SESSION_MANAGER_ROOT;
         objectMapper = objectMapperRoot;
-
         if (loginState == LoginState.AUTHENTICATED) {
             login();
         }

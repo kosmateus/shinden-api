@@ -1,5 +1,6 @@
 package com.github.kosmateus.shinden;
 
+import com.github.kosmateus.shinden.anime.AnimeModule;
 import com.github.kosmateus.shinden.auth.SessionManager;
 import com.github.kosmateus.shinden.login.LoginModule;
 import com.github.kosmateus.shinden.user.UserModule;
@@ -25,12 +26,13 @@ class ShindenModule extends AbstractModule {
     /**
      * Configures the bindings for the Shinden API.
      *
-     * <p>This method installs the {@link LoginModule} and {@link UserModule},
-     * which handle the setup of dependencies related to login and user functionalities.</p>
+     * <p>This method installs the {@link LoginModule}, {@link UserModule}, and {@link AnimeModule},
+     * which handle the setup of dependencies related to login, user, and anime functionalities.</p>
      */
     @Override
     protected void configure() {
         install(new LoginModule(sessionManager));
         install(new UserModule(sessionManager));
+        install(new AnimeModule(sessionManager));
     }
 }

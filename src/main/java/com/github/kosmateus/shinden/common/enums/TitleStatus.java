@@ -1,5 +1,6 @@
 package com.github.kosmateus.shinden.common.enums;
 
+import com.github.kosmateus.shinden.anime.request.AnimeSearchQueryParam;
 import com.github.kosmateus.shinden.http.request.QueryParam;
 import com.github.kosmateus.shinden.i18n.Translatable;
 import lombok.Getter;
@@ -7,18 +8,17 @@ import lombok.RequiredArgsConstructor;
 
 /**
  * Enumeration representing the status of a title (e.g., anime or manga).
- * <p>
- * The {@code TitleStatus} enum defines the various states a media title can have, such as "Currently Airing"
+ *
+ * <p>The {@code TitleStatus} enum defines the various states a media title can have, such as "Currently Airing"
  * or "Finished Airing." Each enum constant is associated with a value for display and a translation key for
  * internationalization purposes. This enum also implements the {@link Translatable} and {@link QueryParam}
- * interfaces to support translation and usage as a query parameter in HTTP requests.
- * </p>
+ * interfaces to support translation and usage as a query parameter in HTTP requests.</p>
  *
  * @version 1.0.0
  */
 @Getter
 @RequiredArgsConstructor
-public enum TitleStatus implements Translatable, QueryParam {
+public enum TitleStatus implements Translatable, QueryParam, AnimeSearchQueryParam {
 
     /**
      * Indicates that the title is a proposal and not yet confirmed for production.
@@ -40,6 +40,8 @@ public enum TitleStatus implements Translatable, QueryParam {
      */
     FINISHED_AIRING("Finished Airing", "user.settings.edit.title-status.finished");
 
+    public static final String ANIME_SEARCH_QUERY_PARAM = "series_status[]";
+
     /**
      * The display value associated with the title status.
      */
@@ -49,13 +51,14 @@ public enum TitleStatus implements Translatable, QueryParam {
      * The translation key used for internationalization of the title status.
      */
     private final String translationKey;
+    private final String queryParameter = "titleStatus";
+    private final String animeSearchQueryParameter = ANIME_SEARCH_QUERY_PARAM;
 
     /**
      * Returns the {@code TitleStatus} corresponding to the specified value.
-     * <p>
-     * This method looks up and returns the {@code TitleStatus} enum constant that matches the provided
-     * display value. If no match is found, it throws an {@link IllegalArgumentException}.
-     * </p>
+     *
+     * <p>This method looks up and returns the {@code TitleStatus} enum constant that matches the provided
+     * display value. If no match is found, it throws an {@link IllegalArgumentException}.</p>
      *
      * @param value the display value representing the title status
      * @return the corresponding {@code TitleStatus} enum constant
@@ -67,35 +70,16 @@ public enum TitleStatus implements Translatable, QueryParam {
                 return status;
             }
         }
+        for (TitleStatus status : values()) {
+            if (status.getTranslation().equals(value)) {
+                return status;
+            }
+        }
         throw new IllegalArgumentException("Unknown title status: " + value);
     }
 
-    /**
-     * Returns the parameter name used in HTTP queries.
-     * <p>
-     * This method provides the name of the query parameter that represents the title status
-     * in an HTTP request.
-     * </p>
-     *
-     * @return the query parameter name as a {@link String}
-     */
-    @Override
-    public String getQueryParameter() {
-        return "titleStatus";
-    }
-
-    /**
-     * Returns the value of the query parameter.
-     * <p>
-     * This method provides the value of the query parameter that represents the title status
-     * in an HTTP request.
-     * </p>
-     *
-     * @return the query parameter value as a {@link String}
-     */
     @Override
     public String getQueryValue() {
         return value;
     }
-
 }

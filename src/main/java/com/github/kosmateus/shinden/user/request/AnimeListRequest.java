@@ -5,11 +5,11 @@ import com.github.kosmateus.shinden.common.enums.TitleStatus;
 import com.github.kosmateus.shinden.common.enums.TitleType;
 import com.github.kosmateus.shinden.common.enums.tag.Tag;
 import com.github.kosmateus.shinden.common.request.Sort.Order;
+import com.github.kosmateus.shinden.http.request.HttpRequest.KeyValue;
 import com.github.kosmateus.shinden.http.request.QueryParam;
 import com.github.kosmateus.shinden.http.request.SortParam;
 import com.github.kosmateus.shinden.user.common.enums.UserTitleStatus;
 import com.github.kosmateus.shinden.utils.QueryParamsBuilder;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import lombok.AllArgsConstructor;
@@ -24,10 +24,10 @@ import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.github.kosmateus.shinden.common.request.Sort.Direction.ASC;
 import static com.github.kosmateus.shinden.common.request.Sort.Direction.DESC;
@@ -37,8 +37,8 @@ import static com.github.kosmateus.shinden.utils.RequestUtils.convertLocalDateTo
  * Represents a request for fetching a user's anime list.
  * <p>
  * The {@code AnimeListRequest} class encapsulates the necessary parameters to request
- * an anime list for a specific user. This includes the user ID and an optional filter
- * for the status of the anime in the user's list.
+ * an anime list for a specific user. This includes the user ID and optional filters
+ * such as anime status, tags, types, statuses, age ratings, and premiere year range.
  * </p>
  *
  * @version 1.0.0
@@ -49,13 +49,6 @@ import static com.github.kosmateus.shinden.utils.RequestUtils.convertLocalDateTo
 @Jacksonized
 @AllArgsConstructor
 public class AnimeListRequest {
-
-    private static final Map<Class<? extends QueryParam>, String> QUERY_PARAM_SEPARATOR_MAP = ImmutableMap.of(
-            Tag.class, ",",
-            TitleType.class, "_",
-            TitleStatus.class, "_",
-            MPAA.class, "_"
-    );
 
     /**
      * The unique identifier of the user whose anime list is being requested.
@@ -117,33 +110,27 @@ public class AnimeListRequest {
     private final boolean excludeTags;
 
     /**
-     * Converts the request parameters to a map of query parameters.
-     * <p>
-     * This method builds a map of query parameters using the provided filters, such as tags,
-     * anime types, statuses, and age ratings. It also includes the premiere year filters,
-     * if specified.
-     * </p>
+     * Converts the current request parameters into a list of key-value pairs to be used as query parameters.
+     * This method handles the conversion of tags, anime types, statuses, age ratings, and premiere years
+     * into their respective query parameters with appropriate separators.
      *
-     * @return a map of query parameters representing this request.
+     * @return a list of {@link KeyValue} representing the query parameters for this request.
      */
-    public Map<String, String> toQueryParams() {
-        Map<String, String> queryParams = QueryParamsBuilder.buildWithSeparators(
-                        QUERY_PARAM_SEPARATOR_MAP,
-                        Stream.of(tags, animeTypes, animeStatuses, ageRatings)
-                                .filter(list -> list != null && !list.isEmpty())
-                                .flatMap(Set::stream)
-                                .collect(Collectors.toSet())
-                ).entrySet()
-                .stream()
-                .collect(Collectors.toMap(
-                        entry -> adjustKey(entry.getKey(), tags, excludeTags),
-                        Map.Entry::getValue
-                ));
-
-        addPremiereParams(queryParams, premiereYearMin, "premiereMin");
-        addPremiereParams(queryParams, premiereYearMax, "premiereMax");
-
-        return queryParams;
+    public List<KeyValue> toQueryParams() {
+        return QueryParamsBuilder.convertToKeyVal(
+                QueryParamsBuilder.buildWithSeparator(",", tags)
+                        .entrySet()
+                        .stream()
+                        .collect(Collectors.toMap(
+                                entry -> adjustKey(entry.getKey(), tags, excludeTags),
+                                Map.Entry::getValue
+                        )),
+                QueryParamsBuilder.buildWithSeparator("_", animeTypes),
+                QueryParamsBuilder.buildWithSeparator("_", animeStatuses),
+                QueryParamsBuilder.buildWithSeparator("_", ageRatings),
+                QueryParamsBuilder.build(QueryParam.of("premiereMin", toLocalDateParam(premiereYearMin))),
+                QueryParamsBuilder.build(QueryParam.of("premiereMax", toLocalDateParam(premiereYearMax)))
+        );
     }
 
     /**
@@ -162,16 +149,16 @@ public class AnimeListRequest {
     }
 
     /**
-     * Adds premiere year parameters to the query parameter map.
+     * Converts the premiere year into a string representation of seconds since epoch.
      *
-     * @param queryParams  the map of query parameters
-     * @param premiereYear the year to add to the query parameters
-     * @param paramName    the name of the query parameter (e.g., "premiereMin" or "premiereMax")
+     * @param premiereYear the premiere year to convert
+     * @return the converted year in seconds since epoch, or null if the year is null
      */
-    private void addPremiereParams(Map<String, String> queryParams, Integer premiereYear, String paramName) {
-        if (premiereYear != null) {
-            queryParams.put(paramName, String.valueOf(convertLocalDateToSeconds(LocalDate.of(premiereYear, 1, 1))));
+    private String toLocalDateParam(Integer premiereYear) {
+        if (premiereYear == null) {
+            return null;
         }
+        return String.valueOf(convertLocalDateToSeconds(LocalDate.of(premiereYear, 1, 1)));
     }
 
     /**
@@ -296,4 +283,3 @@ public class AnimeListRequest {
         }
     }
 }
-

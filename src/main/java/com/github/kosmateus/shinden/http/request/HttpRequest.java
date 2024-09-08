@@ -3,8 +3,10 @@ package com.github.kosmateus.shinden.http.request;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -41,13 +43,14 @@ public final class HttpRequest {
      */
     private final String path;
 
+
     /**
-     * A map of query parameters to be included in the request URL.
+     * A list of query parameters to be included in the request.
      * <p>
-     * These parameters will be appended to the URL after the path, in the standard `key=value` format.
+     * These parameters are appended to the URL in the standard query string format, such as `key=value`.
      * </p>
      */
-    private final Map<String, String> queryParams;
+    private final List<KeyValue> queryParams;
 
     /**
      * The media type of the request body.
@@ -149,9 +152,9 @@ public final class HttpRequest {
      * @return the query parameters as a {@link String}
      */
     private String createQueryParams() {
-        return queryParams.entrySet()
+        return queryParams
                 .stream()
-                .filter(entry -> StringUtils.isNotBlank(entry.getKey()) && StringUtils.isNotBlank(entry.getValue()))
+                .filter(entry -> entry != null && StringUtils.isNotBlank(entry.getKey()) && StringUtils.isNotBlank(entry.getValue()))
                 .collect(
                         StringBuilder::new,
                         (stringBuilder, entry) -> {
@@ -165,4 +168,26 @@ public final class HttpRequest {
                         StringBuilder::append)
                 .toString();
     }
+
+    /**
+     * Represents a key-value pair used in HTTP requests.
+     * <p>
+     * This class is typically used to represent query parameters, headers, cookies,
+     * form fields, and other key-value pairs in an HTTP request.
+     * </p>
+     */
+    @Getter
+    @RequiredArgsConstructor(staticName = "of")
+    public static class KeyValue {
+        /**
+         * The key or name of the parameter.
+         */
+        private final String key;
+
+        /**
+         * The value associated with the key.
+         */
+        private final String value;
+    }
+
 }

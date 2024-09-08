@@ -1,5 +1,6 @@
 package com.github.kosmateus.shinden.common.enums;
 
+import com.github.kosmateus.shinden.anime.request.AnimeSearchQueryParam;
 import com.github.kosmateus.shinden.http.request.QueryParam;
 import com.github.kosmateus.shinden.i18n.Translatable;
 import lombok.Getter;
@@ -17,7 +18,7 @@ import lombok.RequiredArgsConstructor;
  */
 @Getter
 @RequiredArgsConstructor
-public enum TitleType implements Translatable, QueryParam {
+public enum TitleType implements Translatable, QueryParam, AnimeSearchQueryParam {
 
     /**
      * Represents a TV series.
@@ -49,6 +50,7 @@ public enum TitleType implements Translatable, QueryParam {
      */
     MUSIC("Music", "title.type.music");
 
+    public static final String ANIME_SEARCH_QUERY_PARAM = "series_type[]";
     /**
      * The display value associated with the title type.
      */
@@ -58,7 +60,13 @@ public enum TitleType implements Translatable, QueryParam {
      * The translation key used for internationalization of the title type.
      */
     private final String translationKey;
+    private final String queryParameter = "animeType";
+    private final String animeSearchQueryParameter = ANIME_SEARCH_QUERY_PARAM;
 
+    @Override
+    public String getQueryValue() {
+        return value;
+    }
 
     /**
      * Returns the {@code TitleType} corresponding to the specified value.
@@ -78,16 +86,5 @@ public enum TitleType implements Translatable, QueryParam {
             }
         }
         throw new IllegalArgumentException("Unknown title type: " + value);
-    }
-
-    @Override
-    public String getQueryParameter() {
-        return "animeType";
-
-    }
-
-    @Override
-    public String getQueryValue() {
-        return value;
     }
 }

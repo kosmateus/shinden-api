@@ -3,6 +3,14 @@ package com.github.kosmateus.shinden.common.enums.tag;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Enumeration representing different types of productions for tagging purposes in the application.
+ *
+ * <p>Each production type is associated with a unique identifier and a translation key for localization
+ * purposes, along with predefined query parameters used for API searches.</p>
+ *
+ * @version 1.0.0
+ */
 @Getter
 @RequiredArgsConstructor
 public enum ProductionType implements Tag {
@@ -29,16 +37,9 @@ public enum ProductionType implements Tag {
     YOUNG_ANIMATOR_TRAINING_PROJECT(2644, "tags.production-type.young-animator-training-project");
     private final Integer id;
     private final String translationKey;
-
-    @Override
-    public String getTagType() {
-        return "productiontype";
-    }
-
-    @Override
-    public String getQueryParameter() {
-        return "tag";
-    }
+    private final String tagType = "productiontype";
+    private final String queryParameter = "tag";
+    private final String animeSearchQueryParameter = "genres";
 
     @Override
     public String getQueryValue() {

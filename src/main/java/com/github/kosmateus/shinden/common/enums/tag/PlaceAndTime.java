@@ -3,6 +3,14 @@ package com.github.kosmateus.shinden.common.enums.tag;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Enumeration representing different places and times for tagging purposes in the application.
+ *
+ * <p>Each place and time tag is associated with a unique identifier and a translation key for localization
+ * purposes, along with predefined query parameters used for API searches.</p>
+ *
+ * @version 1.0.0
+ */
 @Getter
 @RequiredArgsConstructor
 public enum PlaceAndTime implements Tag {
@@ -35,18 +43,12 @@ public enum PlaceAndTime implements Tag {
     COUNTRYSIDE(1784, "tags.place-and-time.countryside"),
     CONTEMPORARY(1739, "tags.place-and-time.contemporary"),
     ISLAND(2357, "tags.place-and-time.island");
+
     private final Integer id;
     private final String translationKey;
-
-    @Override
-    public String getTagType() {
-        return "place";
-    }
-
-    @Override
-    public String getQueryParameter() {
-        return "tag";
-    }
+    private final String tagType = "place";
+    private final String queryParameter = "tag";
+    private final String animeSearchQueryParameter = "genres";
 
     @Override
     public String getQueryValue() {

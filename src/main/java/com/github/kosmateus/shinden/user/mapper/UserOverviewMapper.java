@@ -1,7 +1,7 @@
 package com.github.kosmateus.shinden.user.mapper;
 
 import com.github.kosmateus.shinden.common.enums.TitleType;
-import com.github.kosmateus.shinden.user.common.enums.UrlType;
+import com.github.kosmateus.shinden.common.enums.UrlType;
 import com.github.kosmateus.shinden.user.common.enums.UserTitleStatus;
 import com.github.kosmateus.shinden.user.response.Comment;
 import com.github.kosmateus.shinden.user.response.EntityOverview;

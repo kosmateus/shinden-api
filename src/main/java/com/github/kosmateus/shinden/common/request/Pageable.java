@@ -24,14 +24,32 @@ public interface Pageable<T extends Enum<T> & SortParam<T>> {
      * with the specified page number, page size, and sorting parameters.
      * </p>
      *
-     * @param pageNumber the page number, zero-based (0 is the first page)
+     * @param pageNumber the page number, must be greater than zero
      * @param pageSize   the size of the page, must be greater than zero
      * @param sort       the sorting parameters, may be {@code null} for no sorting
      * @param <T>        the enum type representing the properties to sort by
      * @return a new instance of {@code Pageable}
      */
     static <T extends Enum<T> & SortParam<T>> Pageable<T> of(int pageNumber, int pageSize, Sort<T> sort) {
+        if (pageSize < 1) {
+            throw new IllegalArgumentException("Page size must be greater than 0");
+        }
         return new PageableImpl<>(pageNumber, pageSize, sort);
+    }
+
+    /**
+     * Creates a new instance of {@code Pageable} with the specified page number and page size.
+     * <p>
+     * The sorting parameters will be set to unsorted by default.
+     * </p>
+     *
+     * @param pageNumber the page number, must be greater than zero
+     * @param pageSize   the size of the page, must be greater than zero
+     * @param <T>        the enum type representing the properties to sort by
+     * @return a new instance of {@code Pageable}
+     */
+    static <T extends Enum<T> & SortParam<T>> Pageable<T> of(int pageNumber, int pageSize) {
+        return of(pageNumber, pageSize, Sort.<T>unsorted());
     }
 
     /**

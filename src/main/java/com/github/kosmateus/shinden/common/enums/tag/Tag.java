@@ -1,5 +1,6 @@
 package com.github.kosmateus.shinden.common.enums.tag;
 
+import com.github.kosmateus.shinden.anime.request.AnimeSearchQueryParam;
 import com.github.kosmateus.shinden.http.request.QueryParam;
 import com.github.kosmateus.shinden.i18n.Translatable;
 
@@ -19,7 +20,7 @@ import com.github.kosmateus.shinden.i18n.Translatable;
  *
  * @version 1.0.0
  */
-public interface Tag extends Translatable, QueryParam {
+public interface Tag extends Translatable, QueryParam, AnimeSearchQueryParam {
 
     /**
      * Gets the unique identifier of the tag.
@@ -38,4 +39,5 @@ public interface Tag extends Translatable, QueryParam {
      * @return the type of the tag
      */
     String getTagType();
+
 }

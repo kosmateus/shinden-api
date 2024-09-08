@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.kosmateus.shinden.common.request.Pageable;
 import com.github.kosmateus.shinden.http.request.FileResource;
 import com.github.kosmateus.shinden.http.request.HttpRequest;
+import com.github.kosmateus.shinden.http.request.HttpRequest.KeyValue;
 import com.github.kosmateus.shinden.http.response.ResponseHandler;
 import com.github.kosmateus.shinden.http.rest.HttpClient;
 import com.github.kosmateus.shinden.user.common.enums.UserTitleStatus;
@@ -18,7 +19,7 @@ import com.google.inject.Inject;
 import lombok.RequiredArgsConstructor;
 
 import javax.annotation.Nullable;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -27,10 +28,9 @@ import static com.github.kosmateus.shinden.constants.ShindenConstants.SHINDEN_US
 
 /**
  * Client for handling user-related HTTP requests.
- * <p>
- * The {@code UserHttpClient} class is responsible for making HTTP requests related to user operations,
- * such as updating user avatars and passwords, using the {@link HttpClient} for executing requests.
- * </p>
+ *
+ * <p>The {@code UserHttpClient} class is responsible for making HTTP requests related to user operations,
+ * such as updating user avatars and passwords, using the {@link HttpClient} for executing requests.</p>
  *
  * @version 1.0.0
  */
@@ -40,10 +40,9 @@ class UserHttpClient {
 
     /**
      * Updates the avatar of a user by uploading a file.
-     * <p>
-     * This method sends an HTTP POST request to update the user's avatar with a provided image file.
-     * It includes form data and the file to be uploaded.
-     * </p>
+     *
+     * <p>This method sends an HTTP POST request to update the user's avatar with a provided image file.
+     * It includes form data and the file to be uploaded.</p>
      *
      * @param userId       the ID of the user whose avatar is being updated
      * @param formData     a map containing form fields required for the avatar update
@@ -56,15 +55,13 @@ class UserHttpClient {
                 .target(SHINDEN_URL)
                 .path("/user/" + userId + "/edit_avatar")
                 .fileResources(ImmutableMap.of("avatar-local", fileResource))
-                .formFields(formData)
                 .build(), String.class);
     }
 
     /**
      * Updates the avatar of a user without uploading a file.
-     * <p>
-     * This method sends an HTTP POST request to update the user's avatar using only form data.
-     * </p>
+     *
+     * <p>This method sends an HTTP POST request to update the user's avatar using only form data.</p>
      *
      * @param userId   the ID of the user whose avatar is being updated
      * @param formData a map containing form fields required for the avatar update
@@ -80,9 +77,8 @@ class UserHttpClient {
 
     /**
      * Updates the password of a user.
-     * <p>
-     * This method sends an HTTP POST request to update the user's password using the provided form data.
-     * </p>
+     *
+     * <p>This method sends an HTTP POST request to update the user's password using the provided form data.</p>
      *
      * @param userId   the ID of the user whose password is being updated
      * @param formData a map containing form fields required for the password update
@@ -98,13 +94,13 @@ class UserHttpClient {
 
     /**
      * Imports a MAL list for a user.
-     * <p>
-     * This method imports a MAL list for a user by uploading a file containing the MAL list data.
-     * The file is expected to be in a valid format that can be processed by the platform.
-     * </p>
      *
-     * @param userId   the ID of the user whose MAL list is being imported
-     * @param formData a map containing form fields required for the MAL list import
+     * <p>This method imports a MAL list for a user by uploading a file containing the MAL list data.
+     * The file is expected to be in a valid format that can be processed by the platform.</p>
+     *
+     * @param userId       the ID of the user whose MAL list is being imported
+     * @param formData     a map containing form fields required for the MAL list import
+     * @param fileResource the {@link FileResource} representing the file to be uploaded
      * @return a {@link ResponseHandler} containing the response as a string
      */
     ResponseHandler<String> importMalList(Long userId, Map<String, String> formData, FileResource fileResource) {
@@ -118,11 +114,10 @@ class UserHttpClient {
 
     /**
      * Retrieves the anime list for a user based on the provided request and optional pagination.
-     * <p>
-     * This method fetches a list of anime items from a user's anime list according to the specified
+     *
+     * <p>This method fetches a list of anime items from a user's anime list according to the specified
      * request criteria and pagination details. If no pagination is provided, all matching anime items
-     * are returned.
-     * </p>
+     * are returned.</p>
      *
      * @param request  the {@link AnimeListRequest} containing the criteria for fetching the user's anime list. Must not be null.
      * @param pageable an optional {@link Pageable} object containing pagination information, such as page number and size. Can be null.
@@ -134,9 +129,9 @@ class UserHttpClient {
                 .map(status -> "/" + status)
                 .orElse("");
 
-        HashMap<String, String> queryParams = new HashMap<>(request.toQueryParams());
+        List<KeyValue> queryParams = request.toQueryParams();
         if (pageable == null) {
-            queryParams.put("limit", "100000");
+            queryParams.add(KeyValue.of("limit", "100000"));
             return httpClient.get(HttpRequest.builder()
                     .target(SHINDEN_USER_LIST_URL)
                     .path(path)
@@ -146,9 +141,9 @@ class UserHttpClient {
             });
         }
 
-        queryParams.put("limit", String.valueOf(pageable.getPageSize()));
-        queryParams.put("offset", String.valueOf(pageable.getOffset()));
-        queryParams.put("sort", SortParamsBuilder.build(pageable));
+        queryParams.add(KeyValue.of("limit", String.valueOf(pageable.getPageSize())));
+        queryParams.add(KeyValue.of("offset", String.valueOf(pageable.getOffset())));
+        queryParams.add(KeyValue.of("sort", SortParamsBuilder.build(pageable)));
         return httpClient.get(HttpRequest.builder()
                 .target(SHINDEN_USER_LIST_URL)
                 .path(path)
@@ -157,5 +152,4 @@ class UserHttpClient {
                 .build(), new TypeReference<ListResponse<AnimeListItem>>() {
         });
     }
-
 }

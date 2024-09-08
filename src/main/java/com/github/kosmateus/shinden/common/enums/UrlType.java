@@ -1,4 +1,4 @@
-package com.github.kosmateus.shinden.user.common.enums;
+package com.github.kosmateus.shinden.common.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
