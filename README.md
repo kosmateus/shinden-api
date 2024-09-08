@@ -35,7 +35,7 @@ To use this library, add the following to your build configuration:
     ```xml
     <dependency>
         <groupId>com.github.kosmateus</groupId>
-        <artifactId>shinden-api</artifactId>
+        <artifactId>shinden4j</artifactId>
         <version>1.0.0</version>
     </dependency>
     ```
